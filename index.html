@@ -3,261 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ thống Luyện tập Đại từ Quan hệ - Full HD</title>
+    <title>Hệ thống Bài tập Đại từ Quan hệ - Pro Dashboard</title>
     <style>
         :root {
-            --bg-body: #f4f7f6;
-            --card-bg: #ffffff;
-            --primary: #2563eb;
-            --secondary: #64748b;
+            --bg: #f0f4f8;
+            --sidebar: #1e293b;
+            --accent: #3b82f6;
             --success: #10b981;
-            --error: #ef4444;
-            --text-main: #1e293b;
+            --danger: #ef4444;
+            --text-dark: #334155;
+            --card: #ffffff;
         }
 
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
+            background-color: var(--bg);
             margin: 0;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            overflow: hidden; /* Tránh cuộn trang chính */
         }
 
-        .desktop-container {
-            width: 1400px; /* Tối ưu cho màn hình 1920x1080 */
-            height: 850px;
-            background: var(--card-bg);
+        .app-container {
+            width: 95vw;
+            max-width: 1600px;
+            height: 90vh;
+            background: var(--card);
+            border-radius: 20px;
             display: grid;
-            grid-template-columns: 350px 1fr;
-            border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            grid-template-columns: 320px 1fr;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
             overflow: hidden;
         }
 
         /* Sidebar bên trái */
         .sidebar {
-            background: var(--primary);
+            background: var(--sidebar);
             color: white;
-            padding: 40px;
+            padding: 40px 30px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
-        .sidebar h2 { font-size: 2rem; margin-bottom: 10px; }
-        .stats-card {
-            background: rgba(255, 255, 255, 0.1);
+        .sidebar h2 { font-size: 1.8rem; margin: 0 0 10px 0; color: var(--accent); }
+        
+        .stat-box {
+            background: rgba(255,255,255,0.05);
             padding: 20px;
             border-radius: 15px;
-            margin-top: 20px;
+            margin-bottom: 20px;
         }
 
-        /* Vùng nội dung chính */
-        .main-content {
-            padding: 50px;
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border: 8px solid var(--accent);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+        }
+
+        /* Nội dung bài làm */
+        .content {
+            padding: 40px 60px;
+            display: flex;
+            flex-direction: column;
             overflow-y: auto;
-            position: relative;
         }
 
-        .instruction {
+        .header-info {
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 20px;
             margin-bottom: 30px;
-            padding: 15px;
-            border-radius: 10px;
-            background: #eff6ff;
-            border-left: 4px solid var(--primary);
         }
 
-        .q-grid {
+        .q-batch {
             display: grid;
-            gap: 25px;
+            gap: 20px;
         }
 
-        .q-item {
-            background: #fff;
-            padding: 20px;
+        .q-card {
+            background: #f8fafc;
             border: 1px solid #e2e8f0;
+            padding: 20px;
             border-radius: 12px;
-            transition: 0.2s;
+            transition: all 0.3s ease;
         }
 
-        .q-text { font-weight: 600; font-size: 1.1rem; margin-bottom: 10px; display: block; }
-        .q-text b { color: var(--primary); }
+        .q-card:hover { border-color: var(--accent); transform: translateX(5px); }
+
+        .q-text { font-weight: 600; font-size: 1.1rem; color: var(--text-dark); margin-bottom: 12px; display: block; }
 
         input[type="text"] {
             width: 100%;
-            padding: 14px;
+            padding: 12px 15px;
             border: 2px solid #cbd5e1;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 1rem;
-            box-sizing: border-box;
+            transition: 0.2s;
         }
 
-        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+        input:focus { outline: none; border-color: var(--accent); background: white; }
 
-        .feedback { margin-top: 8px; font-weight: bold; font-size: 0.9rem; }
+        .feedback { font-size: 0.9rem; margin-top: 8px; font-weight: bold; display: none; }
 
-        /* Controls */
-        .controls {
-            margin-top: 40px;
+        /* Nút bấm */
+        .actions {
+            margin-top: auto;
+            padding-top: 30px;
             display: flex;
             gap: 20px;
         }
 
         button {
-            padding: 16px 32px;
+            padding: 15px 30px;
             border: none;
-            border-radius: 12px;
-            font-weight: 700;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: 0.2s;
         }
 
-        .btn-submit { background: var(--success); color: white; flex: 2; }
-        .btn-next { background: var(--primary); color: white; flex: 1; }
+        .btn-check { background: var(--success); color: white; flex: 2; }
+        .btn-next { background: var(--accent); color: white; flex: 1; }
         button:hover { opacity: 0.9; transform: translateY(-2px); }
+        button:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; }
 
-        #progress-bar {
-            width: 100%;
-            height: 10px;
-            background: #e2e8f0;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-        #progress-fill {
-            height: 100%;
-            background: #facc15;
-            width: 0%;
-            border-radius: 5px;
-            transition: 0.5s;
-        }
+        /* Progress bar */
+        .progress-container { width: 100%; height: 8px; background: #334155; border-radius: 4px; margin-top: 10px; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: 0.5s; }
     </style>
 </head>
 <body>
 
-<div class="desktop-container">
+<div class="app-container">
     <div class="sidebar">
         <div>
-            <h2>LUYỆN TẬP</h2>
-            <p>Đại từ quan hệ: Who, Which, That, Whose, Whom</p>
-            <div class="stats-card">
-                <div>Tiến độ: <span id="progress-text">0/15</span></div>
-                <div id="progress-bar"><div id="progress-fill"></div></div>
+            <h2>ENGLISH QUIZ</h2>
+            <p style="opacity: 0.7;">Chuyên đề: Relative Clauses</p>
+            
+            <div class="stat-box" style="margin-top: 40px;">
+                <span style="font-size: 0.8rem; text-transform: uppercase;">Tiến độ hoàn thành</span>
+                <div class="progress-container"><div id="progressFill" class="progress-fill"></div></div>
+                <p id="progressText" style="margin: 10px 0 0 0; font-weight: bold;">Câu 1 - 5 / 15</p>
             </div>
         </div>
-        
-        <div class="stats-card" style="background: white; color: var(--text-main);">
-            <div style="font-size: 0.9rem; color: var(--secondary);">ĐIỂM HỆ 100</div>
-            <div id="score-percent" style="font-size: 3rem; font-weight: 800; color: var(--primary);">0%</div>
+
+        <div class="score-circle">
+            <span style="font-size: 0.8rem; opacity: 0.8;">TỶ LỆ ĐÚNG</span>
+            <span id="percentDisplay" style="font-size: 2.5rem; font-weight: 800;">0%</span>
         </div>
+
+        <p style="font-size: 0.8rem; text-align: center; opacity: 0.5;">Tối ưu cho màn hình 1920x1080 (125%)</p>
     </div>
 
-    <div class="main-content">
-        <div class="instruction">
-            <strong>Yêu cầu:</strong> Kết hợp các câu sau thành một câu hoàn chỉnh. Bạn có thể sử dụng <b>"that"</b> thay cho <b>who/which</b> ở các mệnh đề xác định.
+    <div class="content">
+        <div class="header-info">
+            <h1 style="margin: 0; color: var(--text-dark);">Nối câu sử dụng Đại từ quan hệ</h1>
+            <p style="color: #64748b;">Dùng <b>Who, Which, That, Whose, Whom</b>. Chấp nhận 'that' cho mệnh đề xác định.</p>
         </div>
 
-        <div id="quiz-container" class="q-grid"></div>
+        <div id="quizBox" class="q-batch">
+            </div>
 
-        <div class="controls">
-            <button class="btn-submit" onclick="checkCurrentBatch()">CHẤM ĐIỂM CÁC CÂU NÀY</button>
-            <button class="btn-next" onclick="nextBatch()">5 CÂU TIẾP THEO ➔</button>
+        <div class="actions">
+            <button class="btn-check" onclick="gradeBatch()">KIỂM TRA ĐÁP ÁN</button>
+            <button id="nextBtn" class="btn-next" onclick="loadNextBatch()" disabled>TIẾP THEO ➔</button>
         </div>
     </div>
 </div>
 
 <script>
-    const allQuestions = [
-        // Batch 1
+    const database = [
         { q1: "The man is my uncle.", q2: "He is standing near the door.", ans: "The man who is standing near the door is my uncle", alt: "The man that is standing near the door is my uncle", w: 1 },
         { q1: "I know the girl.", q2: "She won the first prize.", ans: "I know the girl who won the first prize", alt: "I know the girl that won the first prize", w: 1 },
         { q1: "The students are very friendly.", q2: "They live in the dormitory.", ans: "The students who live in the dormitory are very friendly", alt: "The students that live in the dormitory are very friendly", w: 2 },
         { q1: "The book is very interesting.", q2: "I bought it yesterday.", ans: "The book which I bought yesterday is very interesting", alt: "The book that I bought yesterday is very interesting", w: 2 },
         { q1: "The car is expensive.", q2: "It was made in Japan.", ans: "The car which was made in Japan is expensive", alt: "The car that was made in Japan is expensive", w: 1 },
-        // Batch 2
+        
         { q1: "The boy is crying.", q2: "His bicycle was stolen.", ans: "The boy whose bicycle was stolen is crying", w: 3 },
         { q1: "I met a woman.", q2: "Her son is a famous singer.", ans: "I met a woman whose son is a famous singer", w: 3 },
         { q1: "The man is a doctor.", q2: "You met him at the party.", ans: "The man whom you met at the party is a doctor", alt: "The man that you met at the party is a doctor", w: 3 },
         { q1: "The laptop is new.", q2: "I bought it last week.", ans: "The laptop which I bought last week is new", alt: "The laptop that I bought last week is new", w: 2 },
         { q1: "The girl is my classmate.", q2: "I lent my book to her.", ans: "The girl whom I lent my book to is my classmate", alt: "The girl that I lent my book to is my classmate", w: 3 },
-        // Batch 3
-        { q1: "The teacher is very kind.", q2: "He helps me with my homework.", ans: "The teacher who helps me with my homework is very kind", alt: "The teacher that helps me with my homework is very kind", w: 1 },
-        { q1: "This is the dog.", q2: "Its tail was cut.", ans: "This is the dog whose tail was cut", w: 3 },
-        { q1: "The cake was delicious.", q2: "My mother made it.", ans: "The cake which my mother made was delicious", alt: "The cake that my mother made was delicious", w: 2 },
-        { q1: "The woman is an architect.", q2: "She lives in the penthouse.", ans: "The woman who lives in the penthouse is an architect", alt: "The woman that lives in the penthouse is an architect", w: 2 },
-        { q1: "Everything is ready.", q2: "It happened yesterday.", ans: "Everything that happened yesterday is ready", w: 3 }
+
+        { q1: "The doctor is very kind.", q2: "We visited him yesterday.", ans: "The doctor whom we visited yesterday is very kind", alt: "The doctor that we visited yesterday is very kind", w: 2 },
+        { q1: "The house is big.", q2: "Its windows are broken.", ans: "The house whose windows are broken is big", w: 3 },
+        { q1: "The lady is my teacher.", q2: "She is wearing a red dress.", ans: "The lady who is wearing a red dress is my teacher", alt: "The lady that is wearing a red dress is my teacher", w: 1 },
+        { q1: "The phone is broken.", q2: "I dropped it this morning.", ans: "The phone which I dropped this morning is broken", alt: "The phone that I dropped this morning is broken", w: 2 },
+        { q1: "That is the man.", q2: "I told you about him.", ans: "That is the man whom I told you about", alt: "That is the man that I told you about", w: 3 }
     ];
 
-    let currentStep = 0;
+    let currentBatchIndex = 0;
     const batchSize = 5;
-    let totalScoreObtained = 0;
-    const maxWeight = allQuestions.reduce((sum, q) => sum + q.w, 0);
+    let earnedWeight = 0;
+    const totalPossibleWeight = database.reduce((s, q) => s + q.w, 0);
 
-    function renderBatch() {
-        const container = document.getElementById('quiz-container');
-        container.innerHTML = '';
-        const start = currentStep * batchSize;
-        const end = start + batchSize;
-        const batch = allQuestions.slice(start, end);
+    function render() {
+        const quizBox = document.getElementById('quizBox');
+        quizBox.innerHTML = '';
+        const start = currentBatchIndex * batchSize;
+        const end = Math.min(start + batchSize, database.length);
+        const batch = database.slice(start, end);
 
-        batch.forEach((item, index) => {
-            const realIndex = start + index;
-            const div = document.createElement('div');
-            div.className = 'q-item';
-            div.innerHTML = `
-                <span class="q-text"><b>Câu ${realIndex + 1}:</b> ${item.q1} ${item.q2}</span>
-                <input type="text" id="input-${realIndex}" autocomplete="off" placeholder="Nhập câu trả lời...">
-                <div id="fb-${realIndex}" class="feedback"></div>
+        batch.forEach((item, i) => {
+            const globalIndex = start + i;
+            quizBox.innerHTML += `
+                <div class="q-card">
+                    <span class="q-text">Câu ${globalIndex + 1}: ${item.q1} ${item.q2}</span>
+                    <input type="text" id="in-${globalIndex}" placeholder="Viết lại câu...">
+                    <div id="fb-${globalIndex}" class="feedback"></div>
+                </div>
             `;
-            container.appendChild(div);
         });
 
-        document.getElementById('progress-text').innerText = `${end}/${allQuestions.length}`;
-        document.getElementById('progress-fill').style.width = `${(end / allQuestions.length) * 100}%`;
+        // Update Progress
+        document.getElementById('progressText').innerText = `Câu ${start + 1} - ${end} / ${database.length}`;
+        document.getElementById('progressFill').style.width = `${(end / database.length) * 100}%`;
+        document.getElementById('nextBtn').disabled = true;
     }
 
-    function normalize(str) {
-        return str.toLowerCase().trim().replace(/[.!?]$/, "").replace(/\s+/g, ' ');
-    }
+    function normalize(s) { return s.toLowerCase().trim().replace(/[.!?]$/, "").replace(/\s+/g, ' '); }
 
-    function checkCurrentBatch() {
-        const start = currentStep * batchSize;
-        const end = start + batchSize;
-        let batchCorrectWeight = 0;
-
+    function gradeBatch() {
+        const start = currentBatchIndex * batchSize;
+        const end = Math.min(start + batchSize, database.length);
+        
         for (let i = start; i < end; i++) {
-            const userVal = normalize(document.getElementById(`input-${i}`).value);
-            const item = allQuestions[i];
+            const input = document.getElementById(`in-${i}`);
             const fb = document.getElementById(`fb-${i}`);
+            const val = normalize(input.value);
+            const item = database[i];
 
-            if (userVal === normalize(item.ans) || (item.alt && userVal === normalize(item.alt))) {
+            if (val === normalize(item.ans) || (item.alt && val === normalize(item.alt))) {
                 fb.innerText = "✓ Chính xác!";
                 fb.style.color = "var(--success)";
-                totalScoreObtained += item.w;
+                earnedWeight += item.w;
             } else {
-                fb.innerText = `✗ Sai. Gợi ý: ${item.ans}`;
-                fb.style.color = "var(--error)";
+                fb.innerText = `✗ Đáp án mẫu: ${item.ans}`;
+                fb.style.color = "var(--danger)";
             }
+            fb.style.display = "block";
+            input.disabled = true;
         }
 
-        // Tính tỷ lệ % dựa trên tổng trọng số toàn bài
-        const percentage = Math.round((totalScoreObtained / maxWeight) * 100);
-        document.getElementById('score-percent').innerText = `${percentage}%`;
+        const percent = Math.round((earnedWeight / totalPossibleWeight) * 100);
+        document.getElementById('percentDisplay').innerText = percent + "%";
+        document.getElementById('nextBtn').disabled = false;
     }
 
-    function nextBatch() {
-        if ((currentStep + 1) * batchSize < allQuestions.length) {
-            currentStep++;
-            renderBatch();
+    function loadNextBatch() {
+        if ((currentBatchIndex + 1) * batchSize < database.length) {
+            currentBatchIndex++;
+            render();
         } else {
-            alert("Bạn đã hoàn thành tất cả các câu hỏi!");
+            alert("Chúc mừng! Bạn đã hoàn thành toàn bộ bài tập.");
         }
     }
 
-    renderBatch();
+    render();
 </script>
-
 </body>
 </html>
