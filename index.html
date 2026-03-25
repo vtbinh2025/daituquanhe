@@ -328,25 +328,59 @@
         document.getElementById('progressText').innerText = `Câu ${start + 1}-${end} / ${database.length}`;
         document.getElementById('nextBtn').disabled = true;
     }
+function normalize(s) { 
+        return s.toLowerCase().trim().replace(/[.!?]$/, "").replace(/\s+/g, ' '); 
+    }
 
-    function normalize(s) { return s.toLowerCase().trim().replace(/[.!?]$/, "").replace(/\s+/g, ' '); }
+    /**
+     * Hàm kiểm tra linh hoạt: Chấp nhận hoán đổi who/which với that
+     */
+    function isCorrect(userInp, modelAns) {
+        const u = normalize(userInp);
+        const m = normalize(modelAns);
+        
+        // 1. Kiểm tra khớp hoàn toàn
+        if (u === m) return true;
+
+        // 2. Tạo các biến thể tự động (Hoán đổi who/which <-> that)
+        // Lưu ý: Chỉ áp dụng cho mệnh đề xác định (không có dấu phẩy)
+        const variants = [m];
+        if (!m.includes(",")) {
+            variants.push(m.replace(/\bwho\b/g, "that"));
+            variants.push(m.replace(/\bwhich\b/g, "that"));
+            variants.push(m.replace(/\bthat\b/g, "who")); // Thử ngược lại nếu mẫu dùng that
+            variants.push(m.replace(/\bthat\b/g, "which"));
+        }
+
+        // Kiểm tra xem input của người dùng có khớp với bất kỳ biến thể nào không
+        return variants.some(v => u === normalize(v));
+    }
 
     function gradeBatch() {
         const start = currentBatchIndex * batchSize;
         const end = Math.min(start + batchSize, database.length);
+        
         for (let i = start; i < end; i++) {
             const input = document.getElementById(`in-${i}`);
             const fb = document.getElementById(`fb-${i}`);
-            const val = normalize(input.value);
+            const val = input.value;
             const item = database[i];
-            if (val === normalize(item.ans) || (item.alt && val === normalize(item.alt))) {
-                fb.innerText = "✓ Chính xác!"; fb.style.color = "var(--success)"; earnedWeight += item.w;
+
+            // Sử dụng hàm isCorrect mới để chấm điểm linh hoạt
+            if (isCorrect(val, item.ans)) {
+                fb.innerText = "✓ Chính xác!"; 
+                fb.style.color = "var(--success)"; 
+                earnedWeight += item.w;
             } else {
-                fb.innerText = `✗ Đáp án mẫu: ${item.ans}`; fb.style.color = "var(--danger)";
+                fb.innerText = `✗ Đáp án mẫu: ${item.ans}`; 
+                fb.style.color = "var(--danger)";
             }
-            fb.style.display = "block"; input.disabled = true;
+            fb.style.display = "block"; 
+            input.disabled = true;
         }
-        document.getElementById('percentDisplay').innerText = Math.round((earnedWeight / totalPossibleWeight) * 100) + "%";
+        
+        const totalPercent = Math.round((earnedWeight / totalPossibleWeight) * 100);
+        document.getElementById('percentDisplay').innerText = totalPercent + "%";
         document.getElementById('nextBtn').disabled = false;
     }
 
