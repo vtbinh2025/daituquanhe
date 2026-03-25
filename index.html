@@ -3,143 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ thống Bài tập Đại từ Quan hệ - Pro Dashboard</title>
+    <title>Hệ thống Học & Luyện tập Đại từ Quan hệ Pro</title>
     <style>
         :root {
-            --bg: #f0f4f8;
-            --sidebar: #1e293b;
-            --accent: #3b82f6;
-            --success: #10b981;
-            --danger: #ef4444;
-            --text-dark: #334155;
-            --card: #ffffff;
+            --bg: #f0f4f8; --sidebar: #1e293b; --accent: #3b82f6;
+            --success: #10b981; --danger: #ef4444; --text-dark: #334155; --card: #ffffff;
         }
-
         * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-
-        body {
-            background-color: var(--bg);
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden; /* Tránh cuộn trang chính */
-        }
+        body { background-color: var(--bg); margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 
         .app-container {
-            width: 95vw;
-            max-width: 1600px;
-            height: 90vh;
-            background: var(--card);
-            border-radius: 20px;
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-            overflow: hidden;
+            width: 95vw; max-width: 1600px; height: 92vh;
+            background: var(--card); border-radius: 24px; display: grid;
+            grid-template-columns: 350px 1fr; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); overflow: hidden;
         }
 
-        /* Sidebar bên trái */
+        /* Sidebar */
         .sidebar {
-            background: var(--sidebar);
-            color: white;
-            padding: 40px 30px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            background: var(--sidebar); color: white; padding: 40px 30px;
+            display: flex; flex-direction: column; justify-content: space-between;
         }
-
-        .sidebar h2 { font-size: 1.8rem; margin: 0 0 10px 0; color: var(--accent); }
-        
-        .stat-box {
-            background: rgba(255,255,255,0.05);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
+        .nav-menu { margin-top: 30px; }
+        .nav-item {
+            padding: 15px; margin-bottom: 10px; border-radius: 12px; cursor: pointer;
+            transition: 0.3s; display: flex; align-items: center; font-weight: 600;
         }
+        .nav-item.active { background: var(--accent); color: white; }
+        .nav-item:hover:not(.active) { background: rgba(255,255,255,0.1); }
 
         .score-circle {
-            width: 150px;
-            height: 150px;
-            border: 8px solid var(--accent);
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            margin: 20px auto;
+            width: 140px; height: 140px; border: 6px solid var(--accent);
+            border-radius: 50%; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; margin: 20px auto;
         }
 
-        /* Nội dung bài làm */
-        .content {
-            padding: 40px 60px;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
+        /* Content Area */
+        .content-wrapper { padding: 40px 60px; overflow-y: auto; height: 100%; position: relative; }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .header-info {
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
+        /* Lý thuyết Style */
+        .theory-section { line-height: 1.8; color: var(--text-dark); }
+        .theory-card { background: #f8fafc; border-left: 5px solid var(--accent); padding: 20px; margin-bottom: 20px; border-radius: 0 12px 12px 0; }
+        .theory-card h3 { margin-top: 0; color: var(--sidebar); }
+        .example-box { background: #eef2ff; padding: 10px 15px; border-radius: 8px; font-style: italic; border: 1px dashed var(--accent); }
 
-        .q-batch {
-            display: grid;
-            gap: 20px;
-        }
-
-        .q-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 20px;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .q-card:hover { border-color: var(--accent); transform: translateX(5px); }
-
-        .q-text { font-weight: 600; font-size: 1.1rem; color: var(--text-dark); margin-bottom: 12px; display: block; }
-
+        /* Quiz Style */
+        .q-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 25px; border-radius: 16px; margin-bottom: 20px; }
         input[type="text"] {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #cbd5e1;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: 0.2s;
+            width: 100%; padding: 15px; border: 2px solid #cbd5e1; border-radius: 10px;
+            font-size: 1.1rem; margin-top: 10px;
         }
+        .feedback { font-weight: bold; margin-top: 10px; display: none; }
 
-        input:focus { outline: none; border-color: var(--accent); background: white; }
-
-        .feedback { font-size: 0.9rem; margin-top: 8px; font-weight: bold; display: none; }
-
-        /* Nút bấm */
-        .actions {
-            margin-top: auto;
-            padding-top: 30px;
-            display: flex;
-            gap: 20px;
-        }
-
-        button {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
+        .actions { display: flex; gap: 20px; margin-top: 30px; }
+        button { padding: 18px 35px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; }
         .btn-check { background: var(--success); color: white; flex: 2; }
         .btn-next { background: var(--accent); color: white; flex: 1; }
-        button:hover { opacity: 0.9; transform: translateY(-2px); }
-        button:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; }
-
-        /* Progress bar */
-        .progress-container { width: 100%; height: 8px; background: #334155; border-radius: 4px; margin-top: 10px; }
-        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: 0.5s; }
+        button:disabled { background: #cbd5e1; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -147,87 +69,245 @@
 <div class="app-container">
     <div class="sidebar">
         <div>
-            <h2>ENGLISH QUIZ</h2>
-            <p style="opacity: 0.7;">Chuyên đề: Relative Clauses</p>
+            <h2 style="color: var(--accent);">ENGLISH PRO</h2>
+            <div class="nav-menu">
+                <div class="nav-item active" onclick="switchTab('quiz')">📝 Luyện Tập</div>
+                <div class="nav-item" onclick="switchTab('theory')">📖 Lý Thuyết</div>
+            </div>
+        </div>
+
+        <div class="stats-area">
+            <div class="score-circle">
+                <span style="font-size: 0.8rem; opacity: 0.8;">TỶ LỆ ĐÚNG</span>
+                <span id="percentDisplay" style="font-size: 2.2rem; font-weight: 800;">0%</span>
+            </div>
+            <p id="progressText" style="text-align: center; font-weight: 600;"></p>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <div id="tab-quiz" class="tab-content active">
+            <div style="border-bottom: 2px solid #eee; margin-bottom: 30px; padding-bottom: 10px;">
+                <h1 style="margin:0;">Luyện viết câu hoàn chỉnh</h1>
+                <p style="color: #64748b;">Dùng <b>Who, Which, That, Whose, Whom</b>. Chấp nhận "that" cho mệnh đề xác định.</p>
+            </div>
+            <div id="quizBox"></div>
+            <div class="actions">
+                <button class="btn-check" onclick="gradeBatch()">KIỂM TRA ĐÁP ÁN</button>
+                <button id="nextBtn" class="btn-next" onclick="loadNextBatch()" disabled>TIẾP THEO ➔</button>
+            </div>
+        </div>
+
+        <div id="tab-theory" class="tab-content theory-section">
+            <h1 style="border-bottom: 3px solid var(--accent); display: inline-block;">Lý Thuyết Đại Từ Quan Hệ</h1>
             
-            <div class="stat-box" style="margin-top: 40px;">
-                <span style="font-size: 0.8rem; text-transform: uppercase;">Tiến độ hoàn thành</span>
-                <div class="progress-container"><div id="progressFill" class="progress-fill"></div></div>
-                <p id="progressText" style="margin: 10px 0 0 0; font-weight: bold;">Câu 1 - 5 / 15</p>
-            </div>
-        </div>
-
-        <div class="score-circle">
-            <span style="font-size: 0.8rem; opacity: 0.8;">TỶ LỆ ĐÚNG</span>
-            <span id="percentDisplay" style="font-size: 2.5rem; font-weight: 800;">0%</span>
-        </div>
-
-        <p style="font-size: 0.8rem; text-align: center; opacity: 0.5;">Tối ưu cho màn hình 1920x1080 (125%)</p>
-    </div>
-
-    <div class="content">
-        <div class="header-info">
-            <h1 style="margin: 0; color: var(--text-dark);">Nối câu sử dụng Đại từ quan hệ</h1>
-            <p style="color: #64748b;">Dùng <b>Who, Which, That, Whose, Whom</b>. Chấp nhận 'that' cho mệnh đề xác định.</p>
-        </div>
-
-        <div id="quizBox" class="q-batch">
+            <div class="theory-card">
+                <h3>1. Tại sao sau Đại từ quan hệ thường là một câu đủ (S + V)?</h3>
+                <p>Xuất phát từ chức năng <b>"hai trong một"</b>: Nó vừa là từ nối, vừa thay thế cho danh từ đứng trước (tiền ngữ) để tránh lặp từ. Khi đại từ quan hệ lấy đi một vị trí (chủ ngữ hoặc tân ngữ), phần còn lại vẫn phải giữ cấu trúc logic để hoàn thiện thông tin.</p>
             </div>
 
-        <div class="actions">
-            <button class="btn-check" onclick="gradeBatch()">KIỂM TRA ĐÁP ÁN</button>
-            <button id="nextBtn" class="btn-next" onclick="loadNextBatch()" disabled>TIẾP THEO ➔</button>
+            <div class="theory-card">
+                <h3>2. Phân hóa vị trí và Cấu trúc theo sau</h3>
+                <ul>
+                    <li><b>Who/Which/That (Làm chủ ngữ):</b> Sau nó là một <b>Động từ (V)</b>.
+                        <div class="example-box">Ví dụ: The man <b>who</b> <u>is</u> standing there...</div>
+                    </li>
+                    <li><b>Whom/Which/That (Làm tân ngữ):</b> Sau nó phải là <b>Chủ ngữ + Động từ (S + V)</b>.
+                        <div class="example-box">Ví dụ: The man <b>whom</b> <u>you met</u>...</div>
+                    </li>
+                    <li><b>Whose (Sở hữu):</b> Sau nó bắt buộc là <b>Danh từ + Vị ngữ</b>.
+                        <div class="example-box">Ví dụ: The boy <b>whose</b> <u>bicycle was stolen</u>...</div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="theory-card">
+                <h3>3. Bản chất Mệnh đề tính ngữ (Adjective Clause)</h3>
+                <p>Mệnh đề quan hệ hoạt động như một tính từ lớn. Để mô tả các đặc điểm phức tạp, chúng ta cần S + V để diễn đạt một sự việc hoặc mối quan hệ rõ ràng thay vì chỉ dùng một tính từ đơn lẻ.</p>
+            </div>
+			<div class="theory-card">
+                <h3>🔍 Cách xác định "Câu Khung" (Câu chính)</h3>
+                <p>Để biết đâu là <b>câu khung</b> (câu chính) và đâu là <b>câu chèn</b> (mệnh đề quan hệ), hãy áp dụng 2 quy tắc vàng:</p>
+                
+                <h4>1. Quy tắc "Đối tượng nào cần định nghĩa?"</h4>
+                <p>Mục đích của mệnh đề quan hệ là giải thích rõ hơn cho một danh từ còn mơ hồ.</p>
+                <div class="example-box">
+                    • Câu A: The children are playing in the park. (Hành động đang diễn ra)<br>
+                    • Câu B: They are very happy. (Trạng thái/Tính chất)<br>
+                    • <b>Tư duy:</b> Nếu chỉ nói "Lũ trẻ rất hạnh phúc", người nghe sẽ hỏi "Lũ trẻ nào?". Cụm "đang chơi ở công viên" giúp <b>định danh</b> nhóm trẻ đó.
+                </div>
+                <p>➔ <b>Kết quả:</b> The children <span class="highlight">who are playing in the park</span> are very happy.</p>
+
+                <h4>2. Quy tắc "Cắt và Dán" (Surgical Method)</h4>
+                <p><b>Bước 1:</b> Tìm 2 từ cùng chỉ một đối tượng (The children - They).<br>
+                   <b>Bước 2:</b> Chọn câu "mô tả" làm câu chèn (who are playing...).<br>
+                   <b>Bước 3:</b> Dán cụm "who" này <b>ngay sau</b> danh từ ở câu chính.</p>
+                <div class="example-box">Câu chính: The children (<b>Dán "who" vào đây</b>) are very happy.</div>
+
+                <h4>3. Mẹo nhận diện nhanh</h4>
+                <div class="tip-box">
+                    💡 <b>Mẹo:</b> Trong bài tập nối câu:<br>
+                    • Câu có danh từ cụ thể (The man, The teacher...) thường làm <b>Khung</b>.<br>
+                    • Câu bắt đầu bằng đại từ (He, She, They, It...) thường biến thành <b>Mệnh đề quan hệ</b>.
+                </div>
+            </div>
+
+            <div class="theory-card">
+                <h3>⚙️ Cấu trúc theo sau Đại từ quan hệ</h3>
+                <ul>
+                    <li><b>Who/Which/That (Chủ ngữ):</b> Theo sau là <b>Động từ (V)</b>.</li>
+                    <li><b>Whom/Which/That (Tân ngữ):</b> Theo sau là <b>Chủ ngữ + Động từ (S + V)</b>.</li>
+                    <li><b>Whose (Sở hữu):</b> Theo sau là <b>Danh từ + Vị ngữ</b>.</li>
+                </ul>
+            </div>
+        
+			
         </div>
     </div>
+	
 </div>
 
 <script>
     const database = [
-        { q1: "The man is my uncle.", q2: "He is standing near the door.", ans: "The man who is standing near the door is my uncle", alt: "The man that is standing near the door is my uncle", w: 1 },
-        { q1: "I know the girl.", q2: "She won the first prize.", ans: "I know the girl who won the first prize", alt: "I know the girl that won the first prize", w: 1 },
-        { q1: "The students are very friendly.", q2: "They live in the dormitory.", ans: "The students who live in the dormitory are very friendly", alt: "The students that live in the dormitory are very friendly", w: 2 },
-        { q1: "The book is very interesting.", q2: "I bought it yesterday.", ans: "The book which I bought yesterday is very interesting", alt: "The book that I bought yesterday is very interesting", w: 2 },
-        { q1: "The car is expensive.", q2: "It was made in Japan.", ans: "The car which was made in Japan is expensive", alt: "The car that was made in Japan is expensive", w: 1 },
-        
-        { q1: "The boy is crying.", q2: "His bicycle was stolen.", ans: "The boy whose bicycle was stolen is crying", w: 3 },
-        { q1: "I met a woman.", q2: "Her son is a famous singer.", ans: "I met a woman whose son is a famous singer", w: 3 },
-        { q1: "The man is a doctor.", q2: "You met him at the party.", ans: "The man whom you met at the party is a doctor", alt: "The man that you met at the party is a doctor", w: 3 },
-        { q1: "The laptop is new.", q2: "I bought it last week.", ans: "The laptop which I bought last week is new", alt: "The laptop that I bought last week is new", w: 2 },
-        { q1: "The girl is my classmate.", q2: "I lent my book to her.", ans: "The girl whom I lent my book to is my classmate", alt: "The girl that I lent my book to is my classmate", w: 3 },
+    // --- WHO (Chủ ngữ - Người) ---
+    { q1: "The man is my uncle.", q2: "He is standing near the door.", ans: "The man who is standing near the door is my uncle", w: 1 },
+    { q1: "I know the girl.", q2: "She won the first prize.", ans: "I know the girl who won the first prize", w: 1 },
+    { q1: "The students are very friendly.", q2: "They live in the dormitory.", ans: "The students who live in the dormitory are very friendly", w: 2 },
+    { q1: "The woman lives next door.", q2: "She is a famous doctor.", ans: "The woman who lives next door is a famous doctor", w: 1 },
+    { q1: "The boy is my brother.", q2: "He is playing football.", ans: "The boy who is playing football is my brother", w: 1 },
+    { q1: "I saw the man.", q2: "He stole your bag.", ans: "I saw the man who stole your bag", w: 1 },
+    { q1: "The lady is very kind.", q2: "She helped me yesterday.", ans: "The lady who helped me yesterday is very kind", w: 1 },
+    { q1: "The children are playing in the park.", q2: "They are very happy.", ans: "The children who are playing in the park are very happy", w: 1 },
+    { q1: "The teacher is from London.", q2: "He teaches us English.", ans: "The teacher who teaches us English is from London", w: 1 },
+    { q1: "The people work in this office.", q2: "They are very hard-working.", ans: "The people who work in this office are very hard-working", w: 2 },
+    { q1: "The person called you.", q2: "He didn't leave a message.", ans: "The person who called you didn't leave a message", w: 1 },
+    { q1: "The workers are on strike.", q2: "They want higher wages.", ans: "The workers who are on strike want higher wages", w: 2 },
+    { q1: "The girl is very intelligent.", q2: "She sits next to me.", ans: "The girl who sits next to me is very intelligent", w: 1 },
+    { q1: "The man was arrested.", q2: "He robbed the bank.", ans: "The man who robbed the bank was arrested", w: 1 },
+    { q1: "The singer is very popular.", q2: "She sang at the concert.", ans: "The singer who sang at the concert is very popular", w: 1 },
+    { q1: "The nurse was very helpful.", q2: "She looked after my grandmother.", ans: "The nurse who looked after my grandmother was very helpful", w: 2 },
+    { q1: "The boy was punished.", q2: "He broke the window.", ans: "The boy who broke the window was punished", w: 1 },
+    { q1: "The neighbors are very noisy.", q2: "They live upstairs.", ans: "The neighbors who live upstairs are very noisy", w: 2 },
+    { q1: "The artist won an award.", q2: "She painted this picture.", ans: "The artist who painted this picture won an award", w: 2 },
+    { q1: "The student was lazy.", q2: "He failed the exam.", ans: "The student who was lazy failed the exam", w: 1 },
 
-        { q1: "The doctor is very kind.", q2: "We visited him yesterday.", ans: "The doctor whom we visited yesterday is very kind", alt: "The doctor that we visited yesterday is very kind", w: 2 },
-        { q1: "The house is big.", q2: "Its windows are broken.", ans: "The house whose windows are broken is big", w: 3 },
-        { q1: "The lady is my teacher.", q2: "She is wearing a red dress.", ans: "The lady who is wearing a red dress is my teacher", alt: "The lady that is wearing a red dress is my teacher", w: 1 },
-        { q1: "The phone is broken.", q2: "I dropped it this morning.", ans: "The phone which I dropped this morning is broken", alt: "The phone that I dropped this morning is broken", w: 2 },
-        { q1: "That is the man.", q2: "I told you about him.", ans: "That is the man whom I told you about", alt: "That is the man that I told you about", w: 3 }
-    ];
+    // --- WHICH (Chủ ngữ/Tân ngữ - Vật) ---
+    { q1: "The book is very interesting.", q2: "I bought it yesterday.", ans: "The book which I bought yesterday is very interesting", w: 2 },
+    { q1: "The car is expensive.", q2: "It was made in Japan.", ans: "The car which was made in Japan is expensive", w: 1 },
+    { q1: "I like the gift.", q2: "You gave it to me on my birthday.", ans: "I like the gift which you gave to me on my birthday", w: 2 },
+    { q1: "The movie was very long.", q2: "We saw it last night.", ans: "The movie which we saw last night was very long", w: 2 },
+    { q1: "The house is very old.", q2: "They live in it.", ans: "The house which they live in is very old", w: 2 },
+    { q1: "The letter reached me this morning.", q2: "You sent it last week.", ans: "The letter which you sent last week reached me this morning", w: 2 },
+    { q1: "The cake was delicious.", q2: "My mother made it.", ans: "The cake which my mother made was delicious", w: 2 },
+    { q1: "The bus goes to the airport.", q2: "It runs every half hour.", ans: "The bus which goes to the airport runs every half hour", w: 1 },
+    { q1: "The dress is too small for me.", q2: "I bought it online.", ans: "The dress which I bought online is too small for me", w: 2 },
+    { q1: "The dog is very friendly.", q2: "It barks at strangers.", ans: "The dog which barks at strangers is very friendly", w: 1 },
+    { q1: "The dictionary is on the table.", q2: "I need it.", ans: "The dictionary which I need is on the table", w: 2 },
+    { q1: "The pen is blue.", q2: "I am writing with it.", ans: "The pen which I am writing with is blue", w: 2 },
+    { q1: "The computer is broken.", q2: "It is on the desk.", ans: "The computer which is on the desk is broken", w: 1 },
+    { q1: "The apple was rotten.", q2: "I ate it.", ans: "The apple which I ate was rotten", w: 2 },
+    { q1: "The bridge was built in 1950.", q2: "It crosses the river.", ans: "The bridge which crosses the river was built in 1950", w: 1 },
+    { q1: "The flowers are beautiful.", q2: "They are in the vase.", ans: "The flowers which are in the vase are beautiful", w: 1 },
+    { q1: "The road leads to the city.", q2: "It is very narrow.", ans: "The road which leads to the city is very narrow", w: 1 },
+    { q1: "The phone is ringing.", q2: "It is in my bag.", ans: "The phone which is in my bag is ringing", w: 1 },
+    { q1: "The tree is very tall.", q2: "It stands in front of my house.", ans: "The tree which stands in front of my house is very tall", w: 1 },
+    { q1: "The keys were on the floor.", q2: "I lost them.", ans: "The keys which I lost were on the floor", w: 2 },
 
+    // --- THAT (Thay thế cho Who/Which trong mệnh đề xác định) ---
+    { q1: "The man was friendly.", q2: "I met him on the train.", ans: "The man that I met on the train was friendly", w: 2 },
+    { q1: "The table is broken.", q2: "I bought it last year.", ans: "The table that I bought last year is broken", w: 2 },
+    { q1: "The music is too loud.", q2: "They are listening to it.", ans: "The music that they are listening to is too loud", w: 2 },
+    { q1: "The street is very busy.", q2: "It leads to the market.", ans: "The street that leads to the market is very busy", w: 1 },
+    { q1: "The bread is fresh.", q2: "I bought it this morning.", ans: "The bread that I bought this morning is fresh", w: 2 },
+    { q1: "The information was useful.", q2: "You gave it to me.", ans: "The information that you gave to me was useful", w: 2 },
+    { q1: "The problem is difficult.", q2: "We are discussing it.", ans: "The problem that we are discussing is difficult", w: 2 },
+    { q1: "The food was spicy.", q2: "We had it for lunch.", ans: "The food that we had for lunch was spicy", w: 2 },
+    { q1: "The guy is my cousin.", q2: "He is waving at us.", ans: "The guy that is waving at us is my cousin", w: 1 },
+    { q1: "The store is closed today.", q2: "It sells cheap clothes.", ans: "The store that sells cheap clothes is closed today", w: 1 },
+    { q1: "The cat is sleeping.", q2: "It belongs to my sister.", ans: "The cat that belongs to my sister is sleeping", w: 1 },
+    { q1: "The shoes are expensive.", q2: "I want to buy them.", ans: "The shoes that I want to buy are expensive", w: 2 },
+    { q1: "The mountain is very high.", q2: "They climbed it.", ans: "The mountain that they climbed is very high", w: 2 },
+    { q1: "The city is beautiful.", q2: "I visited it last summer.", ans: "The city that I visited last summer is beautiful", w: 2 },
+    { q1: "The message was short.", q2: "She sent it to me.", ans: "The message that she sent to me was short", w: 2 },
+
+    // --- WHOSE (Sở hữu) ---
+    { q1: "The boy is crying.", q2: "His bicycle was stolen.", ans: "The boy whose bicycle was stolen is crying", w: 3 },
+    { q1: "I met a woman.", q2: "Her son is a famous singer.", ans: "I met a woman whose son is a famous singer", w: 3 },
+    { q1: "That is the house.", q2: "Its roof was destroyed in the storm.", ans: "That is the house whose roof was destroyed in the storm", w: 3 },
+    { q1: "The man was angry.", q2: "His car was scratched.", ans: "The man whose car was scratched was angry", w: 3 },
+    { q1: "The girl is very sad.", q2: "Her dog died yesterday.", ans: "The girl whose dog died yesterday is very sad", w: 3 },
+    { q1: "I know the lady.", q2: "Her daughter is a doctor.", ans: "I know the lady whose daughter is a doctor", w: 3 },
+    { q1: "The student is very happy.", q2: "His grades are excellent.", ans: "The student whose grades are excellent is very happy", w: 3 },
+    { q1: "The family has moved away.", q2: "Their house was sold.", ans: "The family whose house was sold has moved away", w: 3 },
+    { q1: "The tree was cut down.", q2: "Its branches were dead.", ans: "The tree whose branches were dead was cut down", w: 3 },
+    { q1: "The doctor is very famous.", q2: "His clinic is in the city center.", ans: "The doctor whose clinic is in the city center is very famous", w: 3 },
+    { q1: "The neighbors are very kind.", q2: "Their children are well-behaved.", ans: "The neighbors whose children are well-behaved are very kind", w: 3 },
+    { q1: "The company is very successful.", q2: "Its products are worldwide.", ans: "The company whose products are worldwide is very successful", w: 3 },
+    { q1: "The author is signing books.", q2: "His novel is a bestseller.", ans: "The author whose novel is a bestseller is signing books", w: 3 },
+    { q1: "The lady is my aunt.", q2: "Her purse was stolen.", ans: "The lady whose purse was stolen is my aunt", w: 3 },
+    { q1: "The scientist won a prize.", q2: "His discovery changed the world.", ans: "The scientist whose discovery changed the world won a prize", w: 3 },
+    { q1: "The bridge is being repaired.", q2: "Its structure is weak.", ans: "The bridge whose structure is weak is being repaired", w: 3 },
+    { q1: "The dog is in the garden.", q2: "Its tail is short.", ans: "The dog whose tail is short is in the garden", w: 3 },
+    { q1: "The building is very tall.", q2: "Its windows are dirty.", ans: "The building whose windows are dirty is very tall", w: 3 },
+    { q1: "The teacher was proud.", q2: "Her students passed the test.", ans: "The teacher whose students passed the test was proud", w: 3 },
+    { q1: "The boy was rewarded.", q2: "His honesty was appreciated.", ans: "The boy whose honesty was appreciated was rewarded", w: 3 },
+
+    // --- WHOM (Tân ngữ - Người) ---
+    { q1: "The man is a doctor.", q2: "You met him at the party.", ans: "The man whom you met at the party is a doctor", w: 3 },
+    { q1: "The girl is my classmate.", q2: "I lent my book to her.", ans: "The girl whom I lent my book to is my classmate", w: 3 },
+    { q1: "The person is my boss.", q2: "I am talking to him.", ans: "The person whom I am talking to is my boss", w: 3 },
+    { q1: "The candidate was very smart.", q2: "The committee chose him.", ans: "The candidate whom the committee chose was very smart", w: 3 },
+    { q1: "The woman is my teacher.", q2: "You saw her yesterday.", ans: "The woman whom you saw yesterday is my teacher", w: 3 },
+    { q1: "The child was lost.", q2: "The police found him.", ans: "The child whom the police found was lost", w: 3 },
+    { q1: "The friend was very loyal.", q2: "I trusted him.", ans: "The friend whom I trusted was very loyal", w: 3 },
+    { q1: "The actor is very famous.", q2: "We admire him.", ans: "The actor whom we admire is very famous", w: 3 },
+    { q1: "The guest was very polite.", q2: "I invited him to dinner.", ans: "The guest whom I invited to dinner was very polite", w: 3 },
+    { q1: "The lady is very elegant.", q2: "You spoke to her.", ans: "The lady whom you spoke to is very elegant", w: 3 },
+    { q1: "The man is very rich.", q2: "They are working for him.", ans: "The man whom they are working for is very rich", w: 3 },
+    { q1: "The speaker was very inspiring.", q2: "We listened to him.", ans: "The speaker whom we listened to was very inspiring", w: 3 },
+    { q1: "The patient is feeling better.", q2: "The doctor treated him.", ans: "The patient whom the doctor treated is feeling better", w: 3 },
+    { q1: "The lawyer is very clever.", q2: "She hired him.", ans: "The lawyer whom she hired is very clever", w: 3 },
+    { q1: "The neighbor was very helpful.", q2: "I thanked him.", ans: "The neighbor whom I thanked was very helpful", w: 3 },
+
+    // --- MIXED (Hỗn hợp nâng cao) ---
+    { q1: "The book is missing.", q2: "I put it on the shelf.", ans: "The book which I put on the shelf is missing", w: 2 },
+    { q1: "The woman is a lawyer.", q2: "Her office is nearby.", ans: "The woman whose office is nearby is a lawyer", w: 3 },
+    { q1: "The town is very quiet.", q2: "I grew up there.", ans: "The town which I grew up in is very quiet", w: 3 },
+    { q1: "The present was a surprise.", q2: "You gave it to me.", ans: "The present which you gave to me was a surprise", w: 2 },
+    { q1: "The student is my friend.", q2: "He sits behind me.", ans: "The student who sits behind me is my friend", w: 1 },
+    { q1: "The computer is fast.", q2: "I use it for work.", ans: "The computer which I use for work is fast", w: 2 },
+    { q1: "The girl is talented.", q2: "She plays the piano.", ans: "The girl who plays the piano is talented", w: 1 },
+    { q1: "The bag is heavy.", q2: "I am carrying it.", ans: "The bag which I am carrying is heavy", w: 2 },
+    { q1: "The man is very tall.", q2: "I saw him at the gym.", ans: "The man whom I saw at the gym is very tall", w: 3 },
+    { q1: "The car belongs to me.", q2: "It is parked outside.", ans: "The car which is parked outside belongs to me", w: 1 }
+];
     let currentBatchIndex = 0;
     const batchSize = 5;
     let earnedWeight = 0;
     const totalPossibleWeight = database.reduce((s, q) => s + q.w, 0);
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
 
     function render() {
         const quizBox = document.getElementById('quizBox');
         quizBox.innerHTML = '';
         const start = currentBatchIndex * batchSize;
         const end = Math.min(start + batchSize, database.length);
-        const batch = database.slice(start, end);
-
-        batch.forEach((item, i) => {
-            const globalIndex = start + i;
+        database.slice(start, end).forEach((item, i) => {
+            const idx = start + i;
             quizBox.innerHTML += `
                 <div class="q-card">
-                    <span class="q-text">Câu ${globalIndex + 1}: ${item.q1} ${item.q2}</span>
-                    <input type="text" id="in-${globalIndex}" placeholder="Viết lại câu...">
-                    <div id="fb-${globalIndex}" class="feedback"></div>
-                </div>
-            `;
+                    <span style="font-weight:700; color:var(--sidebar)">Câu ${idx + 1}:</span> ${item.q1} ${item.q2}
+                    <input type="text" id="in-${idx}" placeholder="Kết nối câu...">
+                    <div id="fb-${idx}" class="feedback"></div>
+                </div>`;
         });
-
-        // Update Progress
-        document.getElementById('progressText').innerText = `Câu ${start + 1} - ${end} / ${database.length}`;
-        document.getElementById('progressFill').style.width = `${(end / database.length) * 100}%`;
+        document.getElementById('progressText').innerText = `Câu ${start + 1}-${end} / ${database.length}`;
         document.getElementById('nextBtn').disabled = true;
     }
 
@@ -236,37 +316,25 @@
     function gradeBatch() {
         const start = currentBatchIndex * batchSize;
         const end = Math.min(start + batchSize, database.length);
-        
         for (let i = start; i < end; i++) {
             const input = document.getElementById(`in-${i}`);
             const fb = document.getElementById(`fb-${i}`);
             const val = normalize(input.value);
             const item = database[i];
-
             if (val === normalize(item.ans) || (item.alt && val === normalize(item.alt))) {
-                fb.innerText = "✓ Chính xác!";
-                fb.style.color = "var(--success)";
-                earnedWeight += item.w;
+                fb.innerText = "✓ Chính xác!"; fb.style.color = "var(--success)"; earnedWeight += item.w;
             } else {
-                fb.innerText = `✗ Đáp án mẫu: ${item.ans}`;
-                fb.style.color = "var(--danger)";
+                fb.innerText = `✗ Đáp án mẫu: ${item.ans}`; fb.style.color = "var(--danger)";
             }
-            fb.style.display = "block";
-            input.disabled = true;
+            fb.style.display = "block"; input.disabled = true;
         }
-
-        const percent = Math.round((earnedWeight / totalPossibleWeight) * 100);
-        document.getElementById('percentDisplay').innerText = percent + "%";
+        document.getElementById('percentDisplay').innerText = Math.round((earnedWeight / totalPossibleWeight) * 100) + "%";
         document.getElementById('nextBtn').disabled = false;
     }
 
     function loadNextBatch() {
-        if ((currentBatchIndex + 1) * batchSize < database.length) {
-            currentBatchIndex++;
-            render();
-        } else {
-            alert("Chúc mừng! Bạn đã hoàn thành toàn bộ bài tập.");
-        }
+        if ((currentBatchIndex + 1) * batchSize < database.length) { currentBatchIndex++; render(); }
+        else { alert("Hoàn thành bài tập!"); }
     }
 
     render();
