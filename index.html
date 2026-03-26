@@ -105,26 +105,105 @@
                 <button id="nextBtn" class="btn btn-primary btn-main" onclick="loadNextBatch()" disabled>TIẾP THEO ➔</button>
             </div>
         </div>
-
-        <div id="tab-theory" class="tab-content">
-            <h1 class="mb-4 border-bottom pb-2">Cách xác định "Câu Khung" (Câu chính)</h1>
-            <div class="theory-card">
-                <h3>1. Quy tắc "Đối tượng nào cần định nghĩa?"</h3>
-                <p>Mục đích của mệnh đề quan hệ là giải thích rõ hơn cho một danh từ còn mơ hồ.</p>
-                <div class="example-box">
-                    • Câu A: The children are playing in the park. (Hành động)<br>
-                    • Câu B: They are very happy. (Trạng thái)<br>
-                    <b>Tư duy:</b> Dùng cụm "đang chơi ở công viên" để xác định "Lũ trẻ" nào.
-                </div>
-                <p>➔ <b>Kết quả:</b> The children <span class="highlight">who are playing in the park</span> are very happy.</p>
+        <div class="content-wrapper">
+        <div id="tab-quiz" class="tab-content active">
+            <div style="border-bottom: 2px solid #eee; margin-bottom: 30px; padding-bottom: 10px;">
+                <h1 style="margin:0;">Luyện viết câu hoàn chỉnh</h1>
+                <p style="color: #64748b;">Dùng <b>Who, Which, That, Whose, Whom</b>. Chấp nhận "that" cho mệnh đề xác định.</p>
             </div>
-            <div class="theory-card">
-                <h3>2. Quy tắc "Cắt và Dán" (Surgical Method)</h3>
-                <p><b>Bước 1:</b> Tìm từ lặp (The children - They).<br>
-                   <b>Bước 2:</b> Biến câu phụ thành mệnh đề quan hệ (who are playing...).<br>
-                   <b>Bước 3:</b> Dán ngay sau danh từ ở câu chính.</p>
+            <div id="quizBox"></div>
+            <div class="actions">
+                <button class="btn-check" onclick="gradeBatch()">KIỂM TRA ĐÁP ÁN</button>
+                <button id="nextBtn" class="btn-next" onclick="loadNextBatch()" disabled>TIẾP THEO ➔</button>
             </div>
         </div>
+
+        <div id="tab-theory" class="tab-content theory-section">
+            <h1 style="border-bottom: 3px solid var(--accent); display: inline-block;">Lý Thuyết Đại Từ Quan Hệ</h1>
+            
+            <div class="theory-card">
+                <h3>1. Tại sao sau Đại từ quan hệ thường là một câu đủ (S + V)?</h3>
+                <p>Xuất phát từ chức năng <b>"hai trong một"</b>: Nó vừa là từ nối, vừa thay thế cho danh từ đứng trước (tiền ngữ) để tránh lặp từ. Khi đại từ quan hệ lấy đi một vị trí (chủ ngữ hoặc tân ngữ), phần còn lại vẫn phải giữ cấu trúc logic để hoàn thiện thông tin.</p>
+            </div>
+
+            <div class="theory-card">
+                <h3>2. Phân hóa vị trí và Cấu trúc theo sau</h3>
+                <ul>
+                    <li><b>Who/Which/That (Làm chủ ngữ):</b> Sau nó là một <b>Động từ (V)</b>.
+                        <div class="example-box">Ví dụ: The man <b>who</b> <u>is</u> standing there...</div>
+                    </li>
+                    <li><b>Whom/Which/That (Làm tân ngữ):</b> Sau nó phải là <b>Chủ ngữ + Động từ (S + V)</b>.
+                        <div class="example-box">Ví dụ: The man <b>whom</b> <u>you met</u>...</div>
+                    </li>
+                    <li><b>Whose (Sở hữu):</b> Sau nó bắt buộc là <b>Danh từ + Vị ngữ</b>.
+                        <div class="example-box">Ví dụ: The boy <b>whose</b> <u>bicycle was stolen</u>...</div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="theory-card">
+                <h3>3. Bản chất Mệnh đề tính ngữ (Adjective Clause)</h3>
+                <p>Mệnh đề quan hệ hoạt động như một tính từ lớn. Để mô tả các đặc điểm phức tạp, chúng ta cần S + V để diễn đạt một sự việc hoặc mối quan hệ rõ ràng thay vì chỉ dùng một tính từ đơn lẻ.</p>
+            </div>
+			<div class="theory-card">
+                <h3>🔍 Cách xác định "Câu Khung" (Câu chính)</h3>
+                <p>Để biết đâu là <b>câu khung</b> (câu chính) và đâu là <b>câu chèn</b> (mệnh đề quan hệ), hãy áp dụng 2 quy tắc vàng:</p>
+                
+                <h4>1. Quy tắc "Đối tượng nào cần định nghĩa?"</h4>
+                <p>Mục đích của mệnh đề quan hệ là giải thích rõ hơn cho một danh từ còn mơ hồ.</p>
+                <div class="example-box">
+                    • Câu A: The children are playing in the park. (Hành động đang diễn ra)<br>
+                    • Câu B: They are very happy. (Trạng thái/Tính chất)<br>
+                    • <b>Tư duy:</b> Nếu chỉ nói "Lũ trẻ rất hạnh phúc", người nghe sẽ hỏi "Lũ trẻ nào?". Cụm "đang chơi ở công viên" giúp <b>định danh</b> nhóm trẻ đó.
+                </div>
+                <p>➔ <b>Kết quả:</b> The children <span class="highlight">who are playing in the park</span> are very happy.</p>
+
+                <h4>2. Quy tắc "Cắt và Dán" (Surgical Method)</h4>
+                <p><b>Bước 1:</b> Tìm 2 từ cùng chỉ một đối tượng (The children - They).<br>
+                   <b>Bước 2:</b> Chọn câu "mô tả" làm câu chèn (who are playing...).<br>
+                   <b>Bước 3:</b> Dán cụm "who" này <b>ngay sau</b> danh từ ở câu chính.</p>
+                <div class="example-box">Câu chính: The children (<b>Dán "who" vào đây</b>) are very happy.</div>
+
+                <h4>3. Mẹo nhận diện nhanh</h4>
+                <div class="tip-box">
+                    💡 <b>Mẹo:</b> Trong bài tập nối câu:<br>
+                    • Câu có danh từ cụ thể (The man, The teacher...) thường làm <b>Khung</b>.<br>
+                    • Câu bắt đầu bằng đại từ (He, She, They, It...) thường biến thành <b>Mệnh đề quan hệ</b>.
+                </div>
+				<h4>4. Quy tắc làm câu với đại từ quan hệ là sắp theo thứ tự thời gian hiện tại là câu chính, câu hành động quá khứ (hành động trước) sẽ bổ sung cho câu hiện tại </br>
+					Quy tắc thời gian nào chỉ sự lâu dài hay tính chất thì làm câu chính, câu biểu tả  thêm thì tạm thời hay đang xảy ra thời gian ngẳn.</h4>
+                <div class="tip-box">
+                    💡 Trong các bài tập nối câu ở trường học, có một quy tắc ngầm dựa trên Logic thời gian và tính chất:
+					</br>Hành động tạm thời/đang xảy ra thường được ưu tiên làm mệnh đề quan hệ (câu chèn).
+					</br>Thông tin mục đích/kết quả thường được giữ lại làm vị ngữ chính (câu khung).
+					</br>Trong câu  The workers are on strike. They want higher wages. này:
+					</br>Are on strike (Đang đình công): Là một trạng thái tạm thời, dùng để nhận diện đối tượng.
+					Want higher wages (Muốn tăng lương): Là nguyên nhân/mục đích sâu xa của việc họ đang đứng ở đó.
+					</br>Người ta thường nói về "Cái họ đang làm" để dẫn đến "Cái họ muốn". Vì vậy, đưa "đang đình công" vào mệnh đề quan hệ nghe sẽ tự nhiên hơn trong giao tiếp đời thường.
+                </div>
+            </div>
+
+            <div class="theory-card">
+                <h3>⚙️ Để xác định đâu là câu chính (câu khung) và đâu là câu phụ (mệnh đề quan hệ) khi kết hợp hai câu đơn, bạn có thể dựa vào mục tiêu giao tiếp và các dấu hiệu ngữ pháp sau đây.</h3>
+                <ul>
+                    <li><b>1. Phân tích chức năng: "Định nghĩa" hay "Kể thêm"?</b>.</li>
+                    <li><b>Một câu ghép sử dụng đại từ quan hệ luôn có hai thành phần:</b>.</li>
+                    <li><b>Câu chính (Main Clause): Chứa thông báo quan trọng nhất mà bạn muốn người nghe tiếp nhận</b>.</li>
+					 <li><b>Câu phụ (Relative Clause): Chứa thông tin bổ trợ để giải thích rõ danh từ đó là ai, cái gì, hoặc của ai.</b>.</li>
+                </ul>
+            </div>
+         <div class="theory-card">
+                <h3>⚙️ Cấu trúc theo sau Đại từ quan hệ</h3>
+                <ul>
+                    <li><b>Who/Which/That (Chủ ngữ):</b> Theo sau là <b>Động từ (V)</b>.</li>
+                    <li><b>Whom/Which/That (Tân ngữ):</b> Theo sau là <b>Chủ ngữ + Động từ (S + V)</b>.</li>
+                    <li><b>Whose (Sở hữu):</b> Theo sau là <b>Danh từ + Vị ngữ</b>.</li>
+                </ul>
+            </div>
+			
+        </div>
+    </div>
+    
     </div>
 </div>
 
