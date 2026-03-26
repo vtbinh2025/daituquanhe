@@ -4,26 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ thống Học & Luyện tập Đại từ Quan hệ Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
     <style>
         :root {
             --bg: #f0f4f8; --sidebar: #1e293b; --accent: #3b82f6;
             --success: #10b981; --danger: #ef4444; --text-dark: #334155; --card: #ffffff;
+            --sidebar-width: 320px; --sidebar-collapsed-width: 80px;
         }
         * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
         body { background-color: var(--bg); margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 
         .app-container {
             width: 95vw; max-width: 1600px; height: 92vh;
-            background: var(--card); border-radius: 24px; display: grid;
-            grid-template-columns: 350px 1fr; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); overflow: hidden;
+            background: var(--card); border-radius: 24px; display: flex;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); overflow: hidden;
+            transition: all 0.3s ease;
         }
 
-        /* Sidebar */
+        /* Sidebar Style */
         .sidebar {
-            background: var(--sidebar); color: white; padding: 40px 30px;
-            display: flex; flex-direction: column; justify-content: space-between;
+            width: var(--sidebar-width); background: var(--sidebar); color: white;
+            padding: 30px 20px; display: flex; flex-direction: column;
+            justify-content: space-between; transition: all 0.3s ease;
+            position: relative; flex-shrink: 0;
         }
-        .nav-menu { margin-top: 30px; }
+        .sidebar.collapsed { width: var(--sidebar-collapsed-width); padding: 30px 10px; }
+        .sidebar.collapsed .nav-text, .sidebar.collapsed .stats-area, .sidebar.collapsed h2 { display: none; }
+        .sidebar.collapsed .nav-item { justify-content: center; }
+
+        .toggle-btn {
+            position: absolute; right: -15px; top: 20px; background: var(--accent);
+            color: white; border: none; border-radius: 50%; width: 30px; height: 30px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100;
+        }
+
         .nav-item {
             padding: 15px; margin-bottom: 10px; border-radius: 12px; cursor: pointer;
             transition: 0.3s; display: flex; align-items: center; font-weight: 600;
@@ -32,161 +48,88 @@
         .nav-item:hover:not(.active) { background: rgba(255,255,255,0.1); }
 
         .score-circle {
-            width: 140px; height: 140px; border: 6px solid var(--accent);
+            width: 120px; height: 120px; border: 5px solid var(--accent);
             border-radius: 50%; display: flex; flex-direction: column;
             justify-content: center; align-items: center; margin: 20px auto;
         }
 
         /* Content Area */
-        .content-wrapper { padding: 40px 60px; overflow-y: auto; height: 100%; position: relative; }
+        .content-wrapper { flex-grow: 1; padding: 40px 60px; overflow-y: auto; height: 100%; }
         .tab-content { display: none; animation: fadeIn 0.4s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Lý thuyết Style */
-        .theory-section { line-height: 1.8; color: var(--text-dark); }
         .theory-card { background: #f8fafc; border-left: 5px solid var(--accent); padding: 20px; margin-bottom: 20px; border-radius: 0 12px 12px 0; }
-        .theory-card h3 { margin-top: 0; color: var(--sidebar); }
-        .example-box { background: #eef2ff; padding: 10px 15px; border-radius: 8px; font-style: italic; border: 1px dashed var(--accent); }
+        .example-box { background: #eef2ff; padding: 12px 18px; border-radius: 8px; font-style: italic; border: 1px dashed var(--accent); margin: 10px 0; }
+        .highlight { color: var(--danger); font-weight: bold; }
 
         /* Quiz Style */
         .q-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 25px; border-radius: 16px; margin-bottom: 20px; }
-        input[type="text"] {
-            width: 100%; padding: 15px; border: 2px solid #cbd5e1; border-radius: 10px;
-            font-size: 1.1rem; margin-top: 10px;
-        }
+        input[type="text"] { width: 100%; padding: 12px; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 1.1rem; margin-top: 10px; }
         .feedback { font-weight: bold; margin-top: 10px; display: none; }
-
         .actions { display: flex; gap: 20px; margin-top: 30px; }
-        button { padding: 18px 35px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; }
-        .btn-check { background: var(--success); color: white; flex: 2; }
-        .btn-next { background: var(--accent); color: white; flex: 1; }
-        button:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .btn-main { padding: 15px 30px; border-radius: 12px; font-weight: bold; transition: 0.3s; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
+        <button class="toggle-btn" onclick="toggleSidebar()"><i class="bi bi-chevron-left" id="toggle-icon"></i></button>
         <div>
-            <h2 style="color: var(--accent);">ENGLISH PRO</h2>
+            <h2 class="fs-4 fw-bold mb-4 text-primary">ENGLISH PRO</h2>
             <div class="nav-menu">
-                <div class="nav-item active" onclick="switchTab('quiz')">📝 Luyện Tập</div>
-                <div class="nav-item" onclick="switchTab('theory')">📖 Lý Thuyết</div>
+                <div class="nav-item active" onclick="switchTab('quiz')"><i class="bi bi-pencil-square me-2"></i><span class="nav-text">Luyện Tập</span></div>
+                <div class="nav-item" onclick="switchTab('theory')"><i class="bi bi-book me-2"></i><span class="nav-text">Lý Thuyết</span></div>
             </div>
         </div>
-
         <div class="stats-area">
             <div class="score-circle">
-                <span style="font-size: 0.8rem; opacity: 0.8;">TỶ LỆ ĐÚNG</span>
-                <span id="percentDisplay" style="font-size: 2.2rem; font-weight: 800;">0%</span>
+                <span style="font-size: 0.7rem; opacity: 0.8;">TỶ LỆ ĐÚNG</span>
+                <span id="percentDisplay" style="font-size: 1.8rem; font-weight: 800;">0%</span>
             </div>
-            <p id="progressText" style="text-align: center; font-weight: 600;"></p>
+            <p id="progressText" class="text-center small mt-2"></p>
         </div>
     </div>
 
     <div class="content-wrapper">
         <div id="tab-quiz" class="tab-content active">
-            <div style="border-bottom: 2px solid #eee; margin-bottom: 30px; padding-bottom: 10px;">
-                <h1 style="margin:0;">Luyện viết câu hoàn chỉnh</h1>
-                <p style="color: #64748b;">Dùng <b>Who, Which, That, Whose, Whom</b>. Chấp nhận "that" cho mệnh đề xác định.</p>
+            <div class="mb-4 border-bottom pb-2">
+                <h1>Kết nối câu hoàn chỉnh</h1>
+                <p class="text-muted">Sử dụng Who, Which, That, Whose, Whom. Chấp nhận "that" thay cho who/which.</p>
             </div>
             <div id="quizBox"></div>
             <div class="actions">
-                <button class="btn-check" onclick="gradeBatch()">KIỂM TRA ĐÁP ÁN</button>
-                <button id="nextBtn" class="btn-next" onclick="loadNextBatch()" disabled>TIẾP THEO ➔</button>
+                <button class="btn btn-success btn-main flex-grow-1" onclick="gradeBatch()">KIỂM TRA ĐÁP ÁN</button>
+                <button id="nextBtn" class="btn btn-primary btn-main" onclick="loadNextBatch()" disabled>TIẾP THEO ➔</button>
             </div>
         </div>
 
-        <div id="tab-theory" class="tab-content theory-section">
-            <h1 style="border-bottom: 3px solid var(--accent); display: inline-block;">Lý Thuyết Đại Từ Quan Hệ</h1>
-            
+        <div id="tab-theory" class="tab-content">
+            <h1 class="mb-4 border-bottom pb-2">Cách xác định "Câu Khung" (Câu chính)</h1>
             <div class="theory-card">
-                <h3>1. Tại sao sau Đại từ quan hệ thường là một câu đủ (S + V)?</h3>
-                <p>Xuất phát từ chức năng <b>"hai trong một"</b>: Nó vừa là từ nối, vừa thay thế cho danh từ đứng trước (tiền ngữ) để tránh lặp từ. Khi đại từ quan hệ lấy đi một vị trí (chủ ngữ hoặc tân ngữ), phần còn lại vẫn phải giữ cấu trúc logic để hoàn thiện thông tin.</p>
-            </div>
-
-            <div class="theory-card">
-                <h3>2. Phân hóa vị trí và Cấu trúc theo sau</h3>
-                <ul>
-                    <li><b>Who/Which/That (Làm chủ ngữ):</b> Sau nó là một <b>Động từ (V)</b>.
-                        <div class="example-box">Ví dụ: The man <b>who</b> <u>is</u> standing there...</div>
-                    </li>
-                    <li><b>Whom/Which/That (Làm tân ngữ):</b> Sau nó phải là <b>Chủ ngữ + Động từ (S + V)</b>.
-                        <div class="example-box">Ví dụ: The man <b>whom</b> <u>you met</u>...</div>
-                    </li>
-                    <li><b>Whose (Sở hữu):</b> Sau nó bắt buộc là <b>Danh từ + Vị ngữ</b>.
-                        <div class="example-box">Ví dụ: The boy <b>whose</b> <u>bicycle was stolen</u>...</div>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="theory-card">
-                <h3>3. Bản chất Mệnh đề tính ngữ (Adjective Clause)</h3>
-                <p>Mệnh đề quan hệ hoạt động như một tính từ lớn. Để mô tả các đặc điểm phức tạp, chúng ta cần S + V để diễn đạt một sự việc hoặc mối quan hệ rõ ràng thay vì chỉ dùng một tính từ đơn lẻ.</p>
-            </div>
-			<div class="theory-card">
-                <h3>🔍 Cách xác định "Câu Khung" (Câu chính)</h3>
-                <p>Để biết đâu là <b>câu khung</b> (câu chính) và đâu là <b>câu chèn</b> (mệnh đề quan hệ), hãy áp dụng 2 quy tắc vàng:</p>
-                
-                <h4>1. Quy tắc "Đối tượng nào cần định nghĩa?"</h4>
+                <h3>1. Quy tắc "Đối tượng nào cần định nghĩa?"</h3>
                 <p>Mục đích của mệnh đề quan hệ là giải thích rõ hơn cho một danh từ còn mơ hồ.</p>
                 <div class="example-box">
-                    • Câu A: The children are playing in the park. (Hành động đang diễn ra)<br>
-                    • Câu B: They are very happy. (Trạng thái/Tính chất)<br>
-                    • <b>Tư duy:</b> Nếu chỉ nói "Lũ trẻ rất hạnh phúc", người nghe sẽ hỏi "Lũ trẻ nào?". Cụm "đang chơi ở công viên" giúp <b>định danh</b> nhóm trẻ đó.
+                    • Câu A: The children are playing in the park. (Hành động)<br>
+                    • Câu B: They are very happy. (Trạng thái)<br>
+                    <b>Tư duy:</b> Dùng cụm "đang chơi ở công viên" để xác định "Lũ trẻ" nào.
                 </div>
                 <p>➔ <b>Kết quả:</b> The children <span class="highlight">who are playing in the park</span> are very happy.</p>
-
-                <h4>2. Quy tắc "Cắt và Dán" (Surgical Method)</h4>
-                <p><b>Bước 1:</b> Tìm 2 từ cùng chỉ một đối tượng (The children - They).<br>
-                   <b>Bước 2:</b> Chọn câu "mô tả" làm câu chèn (who are playing...).<br>
-                   <b>Bước 3:</b> Dán cụm "who" này <b>ngay sau</b> danh từ ở câu chính.</p>
-                <div class="example-box">Câu chính: The children (<b>Dán "who" vào đây</b>) are very happy.</div>
-
-                <h4>3. Mẹo nhận diện nhanh</h4>
-                <div class="tip-box">
-                    💡 <b>Mẹo:</b> Trong bài tập nối câu:<br>
-                    • Câu có danh từ cụ thể (The man, The teacher...) thường làm <b>Khung</b>.<br>
-                    • Câu bắt đầu bằng đại từ (He, She, They, It...) thường biến thành <b>Mệnh đề quan hệ</b>.
-                </div>
-				<h4>4. Quy tắc làm câu với đại từ quan hệ là sắp theo thứ tự thời gian hiện tại là câu chính, câu hành động quá khứ (hành động trước) sẽ bổ sung cho câu hiện tại </br>
-					Quy tắc thời gian nào chỉ sự lâu dài hay tính chất thì làm câu chính, câu biểu tả  thêm thì tạm thời hay đang xảy ra thời gian ngẳn.</h4>
-                <div class="tip-box">
-                    💡 Trong các bài tập nối câu ở trường học, có một quy tắc ngầm dựa trên Logic thời gian và tính chất:
-					</br>Hành động tạm thời/đang xảy ra thường được ưu tiên làm mệnh đề quan hệ (câu chèn).
-					</br>Thông tin mục đích/kết quả thường được giữ lại làm vị ngữ chính (câu khung).
-					</br>Trong câu  The workers are on strike. They want higher wages. này:
-					</br>Are on strike (Đang đình công): Là một trạng thái tạm thời, dùng để nhận diện đối tượng.
-					Want higher wages (Muốn tăng lương): Là nguyên nhân/mục đích sâu xa của việc họ đang đứng ở đó.
-					</br>Người ta thường nói về "Cái họ đang làm" để dẫn đến "Cái họ muốn". Vì vậy, đưa "đang đình công" vào mệnh đề quan hệ nghe sẽ tự nhiên hơn trong giao tiếp đời thường.
-                </div>
             </div>
-
             <div class="theory-card">
-                <h3>⚙️ Để xác định đâu là câu chính (câu khung) và đâu là câu phụ (mệnh đề quan hệ) khi kết hợp hai câu đơn, bạn có thể dựa vào mục tiêu giao tiếp và các dấu hiệu ngữ pháp sau đây.</h3>
-                <ul>
-                    <li><b>1. Phân tích chức năng: "Định nghĩa" hay "Kể thêm"?</b>.</li>
-                    <li><b>Một câu ghép sử dụng đại từ quan hệ luôn có hai thành phần:</b>.</li>
-                    <li><b>Câu chính (Main Clause): Chứa thông báo quan trọng nhất mà bạn muốn người nghe tiếp nhận</b>.</li>
-					 <li><b>Câu phụ (Relative Clause): Chứa thông tin bổ trợ để giải thích rõ danh từ đó là ai, cái gì, hoặc của ai.</b>.</li>
-                </ul>
+                <h3>2. Quy tắc "Cắt và Dán" (Surgical Method)</h3>
+                <p><b>Bước 1:</b> Tìm từ lặp (The children - They).<br>
+                   <b>Bước 2:</b> Biến câu phụ thành mệnh đề quan hệ (who are playing...).<br>
+                   <b>Bước 3:</b> Dán ngay sau danh từ ở câu chính.</p>
             </div>
-         <div class="theory-card">
-                <h3>⚙️ Cấu trúc theo sau Đại từ quan hệ</h3>
-                <ul>
-                    <li><b>Who/Which/That (Chủ ngữ):</b> Theo sau là <b>Động từ (V)</b>.</li>
-                    <li><b>Whom/Which/That (Tân ngữ):</b> Theo sau là <b>Chủ ngữ + Động từ (S + V)</b>.</li>
-                    <li><b>Whose (Sở hữu):</b> Theo sau là <b>Danh từ + Vị ngữ</b>.</li>
-                </ul>
-            </div>
-			
         </div>
     </div>
-	
 </div>
 
 <script>
+    // Ngân hàng 100 câu hỏi (đã rút gọn mẫu, bạn có thể copy thêm từ danh sách trước)
     const database = [
     // --- WHO (Chủ ngữ - Người) ---
     { q1: "The man is my uncle.", q2: "He is standing near the door.", ans: "The man who is standing near the door is my uncle", w: 1 },
@@ -300,122 +243,98 @@
     { q1: "The man is very tall.", q2: "I saw him at the gym.", ans: "The man whom I saw at the gym is very tall", w: 3 },
     { q1: "The car belongs to me.", q2: "It is parked outside.", ans: "The car which is parked outside belongs to me", w: 1 }
 ];
-     let currentBatchIndex = 0;
+
+    let currentBatchIndex = 0;
     const batchSize = 5;
     let earnedWeight = 0;
-    
-    // BIẾN MỚI: Mảng chứa các câu hỏi đã được xáo trộn
-    let shuffledDatabase = [];
+    let shuffledDb = [];
 
-    /**
-     * Thuật toán Fisher-Yates để trộn ngẫu nhiên mảng
-     */
-    function shuffleArray(array) {
-        let currentIndex = array.length, randomIndex;
-        while (currentIndex != 0) {
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex--;
-            [array[currentIndex], array[randomIndex]] = [
-                array[randomIndex], array[currentIndex]];
-        }
-        return array;
-    }
-
-    // Khởi tạo: Trộn database ngay khi vào trang
+    // Khởi tạo Random
     function initQuiz() {
-        shuffledDatabase = shuffleArray([...database]); // Copy và trộn
-        earnedWeight = 0;
-        currentBatchIndex = 0;
+        shuffledDb = [...database].sort(() => Math.random() - 0.5);
         render();
     }
-
-    const totalPossibleWeight = database.reduce((s, q) => s + q.w, 0);
 
     function switchTab(tab) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         document.getElementById('tab-' + tab).classList.add('active');
-        if(event) event.currentTarget.classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    function toggleSidebar() {
+        const sb = document.getElementById('sidebar');
+        const icon = document.getElementById('toggle-icon');
+        sb.classList.toggle('collapsed');
+        icon.classList.toggle('bi-chevron-left');
+        icon.classList.toggle('bi-chevron-right');
     }
 
     function render() {
-        const quizBox = document.getElementById('quizBox');
-        quizBox.innerHTML = '';
-        
-        // Lấy dữ liệu từ mảng đã trộn ngẫu nhiên
+        const box = document.getElementById('quizBox');
+        box.innerHTML = '';
         const start = currentBatchIndex * batchSize;
-        const end = Math.min(start + batchSize, shuffledDatabase.length);
+        const end = Math.min(start + batchSize, shuffledDb.length);
         
-        shuffledDatabase.slice(start, end).forEach((item, i) => {
+        shuffledDb.slice(start, end).forEach((item, i) => {
             const idx = start + i;
-            quizBox.innerHTML += `
+            box.innerHTML += `
                 <div class="q-card">
-                    <span style="font-weight:700; color:var(--sidebar)">Câu ${idx + 1}:</span> ${item.q1} ${item.q2}
-                    <input type="text" id="in-${idx}" placeholder="Kết nối câu...">
+                    <span class="fw-bold text-dark">Câu ${idx + 1}:</span> ${item.q1} ${item.q2}
+                    <input type="text" id="in-${idx}" placeholder="Nhập câu trả lời...">
                     <div id="fb-${idx}" class="feedback"></div>
                 </div>`;
         });
-        
-        document.getElementById('progressText').innerText = `Tiến độ: ${end} / ${shuffledDatabase.length} câu`;
+        document.getElementById('progressText').innerText = `Tiến độ: ${end}/${shuffledDb.length}`;
         document.getElementById('nextBtn').disabled = true;
     }
 
-    function normalize(s) { 
-        return s.toLowerCase().trim().replace(/[.!?]$/, "").replace(/\s+/g, ' '); 
-    }
+    function normalize(s) { return s.toLowerCase().trim().replace(/[.!?]$/, "").replace(/\s+/g, ' '); }
 
-    function isCorrect(userInp, modelAns) {
-        const u = normalize(userInp);
-        const m = normalize(modelAns);
+    // Chấm điểm thông minh
+    function isCorrect(user, model) {
+        const u = normalize(user);
+        const m = normalize(model);
         if (u === m) return true;
-
-        const variants = [m];
-        if (!m.includes(",")) {
-            variants.push(m.replace(/\bwho\b/g, "that"));
-            variants.push(m.replace(/\bwhich\b/g, "that"));
-            variants.push(m.replace(/\bthat\b/g, "who"));
-            variants.push(m.replace(/\bthat\b/g, "which"));
-        }
+        if (m.includes(",")) return false; // Mệnh đề không xác định không dùng 'that'
+        
+        const variants = [
+            m.replace(/\bwho\b/g, "that"),
+            m.replace(/\bwhich\b/g, "that"),
+            m.replace(/\bthat\b/g, "who"),
+            m.replace(/\bthat\b/g, "which")
+        ];
         return variants.some(v => u === normalize(v));
     }
 
     function gradeBatch() {
         const start = currentBatchIndex * batchSize;
-        const end = Math.min(start + batchSize, shuffledDatabase.length);
-        
+        const end = Math.min(start + batchSize, shuffledDb.length);
+        const totalW = database.reduce((s, q) => s + q.w, 0);
+
         for (let i = start; i < end; i++) {
             const input = document.getElementById(`in-${i}`);
             const fb = document.getElementById(`fb-${i}`);
-            const val = input.value;
-            const item = shuffledDatabase[i]; // Chấm điểm dựa trên mảng đã trộn
+            const item = shuffledDb[i];
 
-            if (isCorrect(val, item.ans)) {
-                fb.innerText = "✓ Chính xác!"; 
-                fb.style.color = "var(--success)"; 
+            if (isCorrect(input.value, item.ans)) {
+                fb.innerText = "✓ Chính xác!"; fb.style.color = "var(--success)";
                 earnedWeight += item.w;
             } else {
-                fb.innerText = `✗ Đáp án mẫu: ${item.ans}`; 
-                fb.style.color = "var(--danger)";
+                fb.innerText = `✗ Đáp án mẫu: ${item.ans}`; fb.style.color = "var(--danger)";
             }
-            fb.style.display = "block"; 
-            input.disabled = true;
+            fb.style.display = "block"; input.disabled = true;
         }
-        
-        const totalPercent = Math.round((earnedWeight / totalPossibleWeight) * 100);
-        document.getElementById('percentDisplay').innerText = totalPercent + "%";
+        document.getElementById('percentDisplay').innerText = Math.round((earnedWeight / totalW) * 100) + "%";
         document.getElementById('nextBtn').disabled = false;
     }
 
     function loadNextBatch() {
-        if ((currentBatchIndex + 1) * batchSize < shuffledDatabase.length) { 
-            currentBatchIndex++; 
-            render(); 
-        } else { 
-            alert("Bạn đã hoàn thành tất cả câu hỏi ngẫu nhiên!"); 
-        }
+        if ((currentBatchIndex + 1) * batchSize < shuffledDb.length) {
+            currentBatchIndex++; render();
+        } else { alert("Hoàn thành bài tập!"); }
     }
 
-    // Chạy khởi tạo khi tải trang
     initQuiz();
 </script>
 </body>
