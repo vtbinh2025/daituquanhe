@@ -300,24 +300,53 @@
     { q1: "The man is very tall.", q2: "I saw him at the gym.", ans: "The man whom I saw at the gym is very tall", w: 3 },
     { q1: "The car belongs to me.", q2: "It is parked outside.", ans: "The car which is parked outside belongs to me", w: 1 }
 ];
-    let currentBatchIndex = 0;
+     let currentBatchIndex = 0;
     const batchSize = 5;
     let earnedWeight = 0;
+    
+    // BIẾN MỚI: Mảng chứa các câu hỏi đã được xáo trộn
+    let shuffledDatabase = [];
+
+    /**
+     * Thuật toán Fisher-Yates để trộn ngẫu nhiên mảng
+     */
+    function shuffleArray(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex != 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [
+                array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+
+    // Khởi tạo: Trộn database ngay khi vào trang
+    function initQuiz() {
+        shuffledDatabase = shuffleArray([...database]); // Copy và trộn
+        earnedWeight = 0;
+        currentBatchIndex = 0;
+        render();
+    }
+
     const totalPossibleWeight = database.reduce((s, q) => s + q.w, 0);
 
     function switchTab(tab) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         document.getElementById('tab-' + tab).classList.add('active');
-        event.currentTarget.classList.add('active');
+        if(event) event.currentTarget.classList.add('active');
     }
 
     function render() {
         const quizBox = document.getElementById('quizBox');
         quizBox.innerHTML = '';
+        
+        // Lấy dữ liệu từ mảng đã trộn ngẫu nhiên
         const start = currentBatchIndex * batchSize;
-        const end = Math.min(start + batchSize, database.length);
-        database.slice(start, end).forEach((item, i) => {
+        const end = Math.min(start + batchSize, shuffledDatabase.length);
+        
+        shuffledDatabase.slice(start, end).forEach((item, i) => {
             const idx = start + i;
             quizBox.innerHTML += `
                 <div class="q-card">
@@ -326,48 +355,40 @@
                     <div id="fb-${idx}" class="feedback"></div>
                 </div>`;
         });
-        document.getElementById('progressText').innerText = `Câu ${start + 1}-${end} / ${database.length}`;
+        
+        document.getElementById('progressText').innerText = `Tiến độ: ${end} / ${shuffledDatabase.length} câu`;
         document.getElementById('nextBtn').disabled = true;
     }
-function normalize(s) { 
+
+    function normalize(s) { 
         return s.toLowerCase().trim().replace(/[.!?]$/, "").replace(/\s+/g, ' '); 
     }
 
-    /**
-     * Hàm kiểm tra linh hoạt: Chấp nhận hoán đổi who/which với that
-     */
     function isCorrect(userInp, modelAns) {
         const u = normalize(userInp);
         const m = normalize(modelAns);
-        
-        // 1. Kiểm tra khớp hoàn toàn
         if (u === m) return true;
 
-        // 2. Tạo các biến thể tự động (Hoán đổi who/which <-> that)
-        // Lưu ý: Chỉ áp dụng cho mệnh đề xác định (không có dấu phẩy)
         const variants = [m];
         if (!m.includes(",")) {
             variants.push(m.replace(/\bwho\b/g, "that"));
             variants.push(m.replace(/\bwhich\b/g, "that"));
-            variants.push(m.replace(/\bthat\b/g, "who")); // Thử ngược lại nếu mẫu dùng that
+            variants.push(m.replace(/\bthat\b/g, "who"));
             variants.push(m.replace(/\bthat\b/g, "which"));
         }
-
-        // Kiểm tra xem input của người dùng có khớp với bất kỳ biến thể nào không
         return variants.some(v => u === normalize(v));
     }
 
     function gradeBatch() {
         const start = currentBatchIndex * batchSize;
-        const end = Math.min(start + batchSize, database.length);
+        const end = Math.min(start + batchSize, shuffledDatabase.length);
         
         for (let i = start; i < end; i++) {
             const input = document.getElementById(`in-${i}`);
             const fb = document.getElementById(`fb-${i}`);
             const val = input.value;
-            const item = database[i];
+            const item = shuffledDatabase[i]; // Chấm điểm dựa trên mảng đã trộn
 
-            // Sử dụng hàm isCorrect mới để chấm điểm linh hoạt
             if (isCorrect(val, item.ans)) {
                 fb.innerText = "✓ Chính xác!"; 
                 fb.style.color = "var(--success)"; 
@@ -386,11 +407,16 @@ function normalize(s) {
     }
 
     function loadNextBatch() {
-        if ((currentBatchIndex + 1) * batchSize < database.length) { currentBatchIndex++; render(); }
-        else { alert("Hoàn thành bài tập!"); }
+        if ((currentBatchIndex + 1) * batchSize < shuffledDatabase.length) { 
+            currentBatchIndex++; 
+            render(); 
+        } else { 
+            alert("Bạn đã hoàn thành tất cả câu hỏi ngẫu nhiên!"); 
+        }
     }
 
-    render();
+    // Chạy khởi tạo khi tải trang
+    initQuiz();
 </script>
 </body>
 </html>
