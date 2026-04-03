@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Học & Luyện tập Đại từ Quan hệ Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --bg: #f0f4f8; --sidebar: #1e293b; --accent: #3b82f6;
+            --success: #10b981; --danger: #ef4444; --text-dark: #334155; --card: #ffffff;
+            --sidebar-width: 320px; --sidebar-collapsed-width: 80px;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg); margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+
+        .app-container {
+            width: 95vw; max-width: 1600px; height: 92vh;
+            background: var(--card); border-radius: 24px; display: flex;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Sidebar Style */
+        .sidebar {
+            width: var(--sidebar-width); background: var(--sidebar); color: white;
+            padding: 30px 20px; display: flex; flex-direction: column;
+            justify-content: space-between; transition: all 0.3s ease;
+            position: relative; flex-shrink: 0;
+        }
+        .sidebar.collapsed { width: var(--sidebar-collapsed-width); padding: 30px 10px; }
+        .sidebar.collapsed .nav-text, .sidebar.collapsed .stats-area, .sidebar.collapsed h2 { display: none; }
+        .sidebar.collapsed .nav-item { justify-content: center; }
+
+        .toggle-btn {
+            position: absolute; right: -15px; top: 20px; background: var(--accent);
+            color: white; border: none; border-radius: 50%; width: 30px; height: 30px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100;
+        }
+
+        .nav-item {
+            padding: 15px; margin-bottom: 10px; border-radius: 12px; cursor: pointer;
+            transition: 0.3s; display: flex; align-items: center; font-weight: 600;
+        }
+        .nav-item.active { background: var(--accent); color: white; }
+        .nav-item:hover:not(.active) { background: rgba(255,255,255,0.1); }
+
+        .score-circle {
+            width: 120px; height: 120px; border: 5px solid var(--accent);
+            border-radius: 50%; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; margin: 20px auto;
+        }
+
+        /* Content Area */
+        .content-wrapper { flex-grow: 1; padding: 40px 60px; overflow-y: auto; height: 100%; }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Lý thuyết Style */
+        .theory-card { background: #f8fafc; border-left: 5px solid var(--accent); padding: 20px; margin-bottom: 20px; border-radius: 0 12px 12px 0; }
+        .example-box { background: #eef2ff; padding: 12px 18px; border-radius: 8px; font-style: italic; border: 1px dashed var(--accent); margin: 10px 0; }
+        .highlight { color: var(--danger); font-weight: bold; }
+        .tip-box { background: #fffbeb; padding: 12px 18px; border-radius: 8px; border: 1px solid #fcd34d; margin: 10px 0; color: #92400e; }
+
+        /* Quiz Style */
+        .q-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 25px; border-radius: 16px; margin-bottom: 20px; }
+        input[type="text"] { width: 100%; padding: 12px; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 1.1rem; margin-top: 10px; transition: border-color 0.3s; }
+        input[type="text"]:focus { border-color: var(--accent); outline: none; }
+        .feedback { font-weight: bold; margin-top: 10px; display: none; }
+        .actions { display: flex; gap: 20px; margin-top: 30px; }
+        .btn-main { padding: 15px 30px; border-radius: 12px; font-weight: bold; transition: 0.3s; border: none; cursor: pointer; }
+        .btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="sidebar" id="sidebar">
+        <button class="toggle-btn" onclick="toggleSidebar()"><i class="bi bi-chevron-left" id="toggle-icon"></i></button>
+        <div>
+            <h2 class="fs-4 fw-bold mb-4 text-primary">ENGLISH PRO</h2>
+            <div class="nav-menu">
+                <div class="nav-item active" onclick="switchTab('quiz', event)"><i class="bi bi-pencil-square me-2"></i><span class="nav-text">Luyện Tập</span></div>
+                <div class="nav-item" onclick="switchTab('theory', event)"><i class="bi bi-book me-2"></i><span class="nav-text">Lý Thuyết</span></div>
+            </div>
+        </div>
+        <div class="stats-area">
+            <div class="score-circle">
+                <span style="font-size: 0.7rem; opacity: 0.8;">TỶ LỆ ĐÚNG</span>
+                <span id="percentDisplay" style="font-size: 1.8rem; font-weight: 800;">0%</span>
+            </div>
+            <p id="progressText" class="text-center small mt-2"></p>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <!-- TAB QUIZ -->
+        <div id="tab-quiz" class="tab-content active">
+            <div style="border-bottom: 2px solid #eee; margin-bottom: 30px; padding-bottom: 10px;">
+                <h1 style="margin:0;">Luyện viết câu hoàn chỉnh (Lược bỏ Đại từ)</h1>
+                <p style="color: #64748b; margin-top: 5px;">
+                    Dùng <b>Who, Which, That, Whose, Whom</b> để nối câu. 
+                    <br><span class="text-danger fw-bold">Thử thách:</span> Hãy <b>LƯỢC BỎ</b> đại từ quan hệ (Which, That, Whom) ở những câu cho phép (khi nó làm tân ngữ) để có câu tự nhiên nhất.
+                </p>
+            </div>
+            <div id="quizBox"></div>
+            <div class="actions">
+                <button class="btn btn-success btn-main flex-grow-1" onclick="gradeBatch()">KIỂM TRA ĐÁP ÁN</button>
+                <button id="nextBtn" class="btn btn-primary btn-main" onclick="loadNextBatch()" disabled>TIẾP THEO ➔</button>
+            </div>
+        </div>
+
+        <!-- TAB THUYẾT -->
+        <div id="tab-theory" class="tab-content theory-section">
+            <h1 style="border-bottom: 3px solid var(--accent); display: inline-block; margin-bottom: 20px;">Lý Thuyết Đại Từ Quan Hệ</h1>
+            
+            <div class="theory-card">
+                <h3>1. Tại sao sau Đại từ quan hệ thường là một câu đủ (S + V)?</h3>
+                <p>Xuất phát từ chức năng <b>"hai trong một"</b>: Nó vừa là từ nối, vừa thay thế cho danh từ đứng trước (tiền ngữ) để tránh lặp từ. Khi đại từ quan hệ lấy đi một vị trí (chủ ngữ hoặc tân ngữ), phần còn lại vẫn phải giữ cấu trúc logic để hoàn thiện thông tin.</p>
+            </div>
+
+            <div class="theory-card">
+                <h3 class="text-danger">🔥 MỚI: Khi nào được LƯỢC BỎ Đại từ quan hệ?</h3>
+                <p>Bạn có thể lược bỏ <b>Whom, Which, That</b> khi chúng đóng vai trò là <b>Tân ngữ (Object)</b> trong mệnh đề quan hệ (tức là ngay sau nó có Chủ ngữ + Động từ).</p>
+                <ul>
+                    <li>
+                        <b>Được lược bỏ (Làm tân ngữ):</b>
+                        <div class="example-box">
+                            • Đầy đủ: The book <b>which/that</b> <u>I bought</u> yesterday is interesting.<br>
+                            • Lược bỏ: The book <u>I bought</u> yesterday is interesting. <i>(Rất tự nhiên)</i>
+                        </div>
+                    </li>
+                    <li>
+                        <b>KHÔNG được lược bỏ (Làm chủ ngữ):</b>
+                        <div class="example-box">
+                            • Đúng: The man <b>who</b> <u>is standing</u> there is my uncle.<br>
+                            • Sai: <del>The man is standing there is my uncle.</del> <i>(Thiếu chủ ngữ cho động từ is standing)</i>
+                        </div>
+                    </li>
+                    <li>
+                        <b>KHÔNG được lược bỏ (Sau dấu phẩy):</b> Trong mệnh đề quan hệ không xác định (có dấu phẩy), bạn tuyệt đối không được lược bỏ đại từ quan hệ và cũng không được dùng "That".
+                    </li>
+                </ul>
+            </div>
+
+            <div class="theory-card">
+                <h3>2. Phân hóa vị trí và Cấu trúc theo sau</h3>
+                <ul>
+                    <li><b>Who/Which/That (Làm chủ ngữ):</b> Sau nó là một <b>Động từ (V)</b>.</li>
+                    <li><b>Whom/Which/That (Làm tân ngữ):</b> Sau nó phải là <b>Chủ ngữ + Động từ (S + V)</b>.</li>
+                    <li><b>Whose (Sở hữu):</b> Sau nó bắt buộc là <b>Danh từ + Vị ngữ</b>.</li>
+                </ul>
+            </div>
+
+            <div class="theory-card">
+                <h3>3. Bản chất Mệnh đề tính ngữ (Adjective Clause)</h3>
+                <p>Mệnh đề quan hệ hoạt động như một tính từ lớn. Để mô tả các đặc điểm phức tạp, chúng ta cần S + V để diễn đạt một sự việc hoặc mối quan hệ rõ ràng thay vì chỉ dùng một tính từ đơn lẻ.</p>
+            </div>
+            
+            <div class="theory-card">
+                <h3>4. Cách xác định "Câu Khung" (Câu chính)</h3>
+                <p>Để biết đâu là <b>câu khung</b> (câu chính) và đâu là <b>câu chèn</b> (mệnh đề quan hệ), hãy áp dụng 2 quy tắc vàng:</p>
+                
+                <h4>Quy tắc "Đối tượng nào cần định nghĩa?"</h4>
+                <div class="example-box">
+                    • Câu A: The children are playing in the park.<br>
+                    • Câu B: They are very happy.<br>
+                    • <b>Tư duy:</b> Cụm "đang chơi ở công viên" giúp <b>định danh</b> nhóm trẻ đó.
+                </div>
+                <p>➔ <b>Kết quả:</b> The children <span class="highlight">who are playing in the park</span> are very happy.</p>
+
+                <h4>Mẹo nhận diện nhanh</h4>
+                <div class="tip-box">
+                    💡 Trong bài tập nối câu:<br>
+                    • Câu có danh từ cụ thể (The man, The teacher...) thường làm <b>Khung</b>.<br>
+                    • Câu bắt đầu bằng đại từ (He, She, They, It...) thường biến thành <b>Mệnh đề quan hệ</b>.<br>
+                    • Hành động tạm thời/đang xảy ra thường được ưu tiên làm mệnh đề quan hệ (câu chèn).
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const database = [
+    // --- PHẦN ĐÃ CÓ: ĐẠI TỪ QUAN HỆ BỊ LƯỢC BỎ (Omission of Which, That, Whom) ---
+    { 
+        q1: "The book was very interesting.", q2: "I read it last week.", 
+        ans: "The book I read last week was very interesting", 
+        chunks: ["The book", "I read last week", "was very interesting"],
+        alt: ["The book which I read last week was very interesting", "The book that I read last week was very interesting"], 
+        w: 2 
+    },
+    { 
+        q1: "The car is very fast.", q2: "He bought it yesterday.", 
+        ans: "The car he bought yesterday is very fast", 
+        chunks: ["The car", "he bought yesterday", "is very fast"],
+        alt: ["The car which he bought yesterday is very fast", "The car that he bought yesterday is very fast"], 
+        w: 2 
+    },
+    { 
+        q1: "The house is very big.", q2: "They are building it.", 
+        ans: "The house they are building is very big", 
+        chunks: ["The house", "they are building", "is very big"],
+        alt: ["The house which they are building is very big", "The house that they are building is very big"], 
+        w: 2 
+    },
+    { 
+        q1: "The cake was delicious.", q2: "She made it for my birthday.", 
+        ans: "The cake she made for my birthday was delicious", 
+        chunks: ["The cake", "she made for my birthday", "was delicious"],
+        alt: ["The cake which she made for my birthday was delicious", "The cake that she made for my birthday was delicious"], 
+        w: 2 
+    },
+    { 
+        q1: "The movie was scary.", q2: "We watched it last night.", 
+        ans: "The movie we watched last night was scary", 
+        chunks: ["The movie", "we watched last night", "was scary"],
+        alt: ["The movie which we watched last night was scary", "The movie that we watched last night was scary"], 
+        w: 2 
+    },
+    { 
+        q1: "The letter is on the table.", q2: "I received it this morning.", 
+        ans: "The letter I received this morning is on the table", 
+        chunks: ["The letter", "I received this morning", "is on the table"],
+        alt: ["The letter which I received this morning is on the table", "The letter that I received this morning is on the table"], 
+        w: 2 
+    },
+    { 
+        q1: "The dress is beautiful.", q2: "Mary is wearing it.", 
+        ans: "The dress Mary is wearing is beautiful", 
+        chunks: ["The dress", "Mary is wearing", "is beautiful"],
+        alt: ["The dress which Mary is wearing is beautiful", "The dress that Mary is wearing is beautiful"], 
+        w: 2 
+    },
+    { 
+        q1: "The picture is very old.", q2: "He is looking at it.", 
+        ans: "The picture he is looking at is very old", 
+        chunks: ["The picture", "he is looking at", "is very old"],
+        alt: ["The picture which he is looking at is very old", "The picture that he is looking at is very old"], 
+        w: 2 
+    },
+    { 
+        q1: "The song is my favorite.", q2: "They are singing it.", 
+        ans: "The song they are singing is my favorite", 
+        chunks: ["The song", "they are singing", "is my favorite"],
+        alt: ["The song which they are singing is my favorite", "The song that they are singing is my favorite"], 
+        w: 2 
+    },
+    { 
+        q1: "The food was terrible.", q2: "We ate it at the restaurant.", 
+        ans: "The food we ate at the restaurant was terrible", 
+        chunks: ["The food", "we ate at the restaurant", "was terrible"],
+        alt: ["The food which we ate at the restaurant was terrible", "The food that we ate at the restaurant was terrible"], 
+        w: 2 
+    },
+    { 
+        q1: "The story is not true.", q2: "He told me it.", 
+        ans: "The story he told me is not true", 
+        chunks: ["The story", "he told me", "is not true"],
+        alt: ["The story which he told me is not true", "The story that he told me is not true"], 
+        w: 2 
+    },
+    { 
+        q1: "The money is gone.", q2: "I left it on the desk.", 
+        ans: "The money I left on the desk is gone", 
+        chunks: ["The money", "I left on the desk", "is gone"],
+        alt: ["The money which I left on the desk is gone", "The money that I left on the desk is gone"], 
+        w: 2 
+    },
+    { 
+        q1: "The game was exciting.", q2: "We played it yesterday.", 
+        ans: "The game we played yesterday was exciting", 
+        chunks: ["The game", "we played yesterday", "was exciting"],
+        alt: ["The game which we played yesterday was exciting", "The game that we played yesterday was exciting"], 
+        w: 2 
+    },
+    { 
+        q1: "The problem is very hard.", q2: "She solved it.", 
+        ans: "The problem she solved is very hard", 
+        chunks: ["The problem", "she solved", "is very hard"],
+        alt: ["The problem which she solved is very hard", "The problem that she solved is very hard"], 
+        w: 2 
+    },
+    { 
+        q1: "The shoes are expensive.", q2: "He wants to buy them.", 
+        ans: "The shoes he wants to buy are expensive", 
+        chunks: ["The shoes", "he wants to buy", "are expensive"],
+        alt: ["The shoes which he wants to buy are expensive", "The shoes that he wants to buy are expensive"], 
+        w: 2 
+    },
+    { 
+        q1: "The computer is broken.", q2: "I use it every day.", 
+        ans: "The computer I use every day is broken", 
+        chunks: ["The computer", "I use every day", "is broken"],
+        alt: ["The computer which I use every day is broken", "The computer that I use every day is broken"], 
+        w: 2 
+    },
+    { 
+        q1: "The phone is new.", q2: "She lost it.", 
+        ans: "The phone she lost is new", 
+        chunks: ["The phone", "she lost", "is new"],
+        alt: ["The phone which she lost is new", "The phone that she lost is new"], 
+        w: 2 
+    },
+    { 
+        q1: "The coffee is cold.", q2: "I bought it an hour ago.", 
+        ans: "The coffee I bought an hour ago is cold", 
+        chunks: ["The coffee", "I bought an hour ago", "is cold"],
+        alt: ["The coffee which I bought an hour ago is cold", "The coffee that I bought an hour ago is cold"], 
+        w: 2 
+    },
+    { 
+        q1: "The mistake was silly.", q2: "I made it in the test.", 
+        ans: "The mistake I made in the test was silly", 
+        chunks: ["The mistake", "I made in the test", "was silly"],
+        alt: ["The mistake which I made in the test was silly", "The mistake that I made in the test was silly"], 
+        w: 2 
+    },
+    { 
+        q1: "The man is very friendly.", q2: "We met him yesterday.", 
+        ans: "The man we met yesterday is very friendly", 
+        chunks: ["The man", "we met yesterday", "is very friendly"],
+        alt: ["The man whom we met yesterday is very friendly", "The man who we met yesterday is very friendly", "The man that we met yesterday is very friendly"], 
+        w: 3 
+    },
+    { 
+        q1: "The woman is a doctor.", q2: "You saw her at the hospital.", 
+        ans: "The woman you saw at the hospital is a doctor", 
+        chunks: ["The woman", "you saw at the hospital", "is a doctor"],
+        alt: ["The woman whom you saw at the hospital is a doctor", "The woman who you saw at the hospital is a doctor", "The woman that you saw at the hospital is a doctor"], 
+        w: 3 
+    },
+    
+    // --- PHẦN ĐÃ CÓ: CÁC CÂU CƠ BẢN (KHÔNG LƯỢC BỎ ĐƯỢC VÌ LÀM CHỦ NGỮ/SỞ HỮU) ---
+    { 
+        q1: "The man is my uncle.", q2: "He is standing near the door.", 
+        ans: "The man who is standing near the door is my uncle", 
+        chunks: ["The man", "who is standing near the door", "is my uncle"],
+        w: 1 
+    },
+    { 
+        q1: "I know the girl.", q2: "She won the first prize.", 
+        ans: "I know the girl who won the first prize", 
+        chunks: ["I know the girl", "who won the first prize"],
+        w: 1 
+    },
+    { 
+        q1: "The students are very friendly.", q2: "They live in the dormitory.", 
+        ans: "The students who live in the dormitory are very friendly", 
+        chunks: ["The students", "who live in the dormitory", "are very friendly"],
+        w: 2 
+    },
+    { 
+        q1: "The woman lives next door.", q2: "She is a famous doctor.", 
+        ans: "The woman who lives next door is a famous doctor", 
+        chunks: ["The woman", "who lives next door", "is a famous doctor"],
+        w: 1 
+    },
+    { 
+        q1: "The boy is crying.", q2: "His bicycle was stolen.", 
+        ans: "The boy whose bicycle was stolen is crying", 
+        chunks: ["The boy", "whose bicycle was stolen", "is crying"],
+        w: 3 
+    },
+    { 
+        q1: "That is the house.", q2: "Its roof was destroyed in the storm.", 
+        ans: "That is the house whose roof was destroyed in the storm", 
+        chunks: ["That is the house", "whose roof was destroyed in the storm"],
+        w: 3 
+    },
+    { 
+        q1: "The man was angry.", q2: "His car was scratched.", 
+        ans: "The man whose car was scratched was angry", 
+        chunks: ["The man", "whose car was scratched", "was angry"],
+        w: 3 
+    },
+    { 
+        q1: "The book is missing.", q2: "I put it on the shelf.", 
+        ans: "The book I put on the shelf is missing", 
+        chunks: ["The book", "I put on the shelf", "is missing"],
+        alt: ["The book which I put on the shelf is missing", "The book that I put on the shelf is missing"], 
+        w: 2 
+    },
+    { 
+        q1: "The car belongs to me.", q2: "It is parked outside.", 
+        ans: "The car which is parked outside belongs to me", 
+        chunks: ["The car", "which is parked outside", "belongs to me"],
+        w: 1 
+    },
+
+    // --- PHẦN ĐÃ CÓ: SỞ HỮU CÁCH CHO VẬT (whose / of which) ---
+    { 
+        q1: "The building is very tall.", q2: "Its windows are dirty.", 
+        ans: "The building whose windows are dirty is very tall", 
+        chunks: ["The building", "whose windows are dirty", "is very tall"],
+        alt: ["The building of which the windows are dirty is very tall", "The building, the windows of which are dirty, is very tall"], 
+        w: 3 
+    },
+    { 
+        q1: "The tree needs to be cut down.", q2: "Its branches are dead.", 
+        ans: "The tree whose branches are dead needs to be cut down", 
+        chunks: ["The tree", "whose branches are dead", "needs to be cut down"],
+        w: 3 
+    },
+    { 
+        q1: "The company has gone bankrupt.", q2: "Its products were very popular.", 
+        ans: "The company whose products were very popular has gone bankrupt", 
+        chunks: ["The company", "whose products were very popular", "has gone bankrupt"],
+        w: 3 
+    },
+    { 
+        q1: "They live in a town.", q2: "Its streets are very narrow.", 
+        ans: "They live in a town whose streets are very narrow", 
+        chunks: ["They live in a town", "whose streets are very narrow"],
+        w: 3 
+    },
+    { 
+        q1: "I bought a new phone.", q2: "Its battery lasts for two days.", 
+        ans: "I bought a new phone whose battery lasts for two days", 
+        chunks: ["I bought a new phone", "whose battery lasts for two days"],
+        w: 3 
+    },
+
+    // --- PHẦN ĐÃ CÓ: CÁC DẠNG HỖN HỢP ---
+    { 
+        q1: "The dog is barking loudly.", q2: "It belongs to my neighbor.", 
+        ans: "The dog which is barking loudly belongs to my neighbor", 
+        chunks: ["The dog", "which is barking loudly", "belongs to my neighbor"],
+        alt: ["The dog that is barking loudly belongs to my neighbor"], 
+        w: 1 
+    },
+    { 
+        q1: "The jacket is too small for me.", q2: "I bought it online.", 
+        ans: "The jacket I bought online is too small for me", 
+        chunks: ["The jacket", "I bought online", "is too small for me"],
+        alt: ["The jacket which I bought online is too small for me", "The jacket that I bought online is too small for me"], 
+        w: 2 
+    },
+    { 
+        q1: "The professor is very knowledgeable.", q2: "His lectures are always crowded.", 
+        ans: "The professor whose lectures are always crowded is very knowledgeable", 
+        chunks: ["The professor", "whose lectures are always crowded", "is very knowledgeable"],
+        w: 3 
+    },
+    { 
+        q1: "The hotel was very comfortable.", q2: "We stayed there last summer.", 
+        ans: "The hotel where we stayed last summer was very comfortable", 
+        chunks: ["The hotel", "where we stayed last summer", "was very comfortable"],
+        alt: ["The hotel which we stayed at last summer was very comfortable", "The hotel we stayed at last summer was very comfortable"], 
+        w: 2 
+    },
+
+    // --- PHẦN MỚI THÊM: MỆNH ĐỀ QUAN HỆ KHÔNG XÁC ĐỊNH (Dùng dấu phẩy, chủ từ xác định) ---
+    { 
+        q1: "Mr. Smith is my English teacher.", q2: "He is standing over there.", 
+        ans: "Mr. Smith, who is standing over there, is my English teacher", 
+        chunks: ["Mr. Smith,", "who is standing over there,", "is my English teacher"],
+        w: 3 
+    },
+    { 
+        q1: "Hanoi is the capital of Vietnam.", q2: "It is famous for its delicious food.", 
+        ans: "Hanoi, which is famous for its delicious food, is the capital of Vietnam", 
+        chunks: ["Hanoi,", "which is famous for its delicious food,", "is the capital of Vietnam"],
+        w: 3 
+    },
+    { 
+        q1: "Mary has just won the championship.", q2: "You met her yesterday.", 
+        ans: "Mary, whom you met yesterday, has just won the championship", 
+        chunks: ["Mary,", "whom you met yesterday,", "has just won the championship"],
+        alt: ["Mary, who you met yesterday, has just won the championship"], 
+        w: 3 
+    },
+    { 
+        q1: "My father's car was stolen.", q2: "He bought it last month.", 
+        ans: "My father's car, which he bought last month, was stolen", 
+        chunks: ["My father's car,", "which he bought last month,", "was stolen"],
+        w: 3 
+    },
+    { 
+        q1: "Da Lat is a beautiful city.", q2: "We spent our honeymoon there.", 
+        ans: "Da Lat, where we spent our honeymoon, is a beautiful city", 
+        chunks: ["Da Lat,", "where we spent our honeymoon,", "is a beautiful city"],
+        alt: [
+            "Da Lat, which we spent our honeymoon in, is a beautiful city", 
+            "Da Lat, in which we spent our honeymoon, is a beautiful city"
+        ], 
+        w: 3 
+    },
+    { 
+        q1: "Mr. Brown was very sad.", q2: "His dog died yesterday.", 
+        ans: "Mr. Brown, whose dog died yesterday, was very sad", 
+        chunks: ["Mr. Brown,", "whose dog died yesterday,", "was very sad"],
+        w: 3 
+    },
+    { 
+        q1: "This new smartphone is very expensive.", q2: "I bought it for my son.", 
+        ans: "This new smartphone, which I bought for my son, is very expensive", 
+        chunks: ["This new smartphone,", "which I bought for my son,", "is very expensive"],
+        w: 3 
+    }
+];
+
+    let currentBatchIndex = 0;
+    const batchSize = 5;
+    let earnedWeight = 0;
+    let shuffledDb = [];
+
+    // Khởi tạo Random
+    function initQuiz() {
+        shuffledDb = [...database].sort(() => Math.random() - 0.5);
+        render();
+    }
+
+    function switchTab(tab, event) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        if(event) event.currentTarget.classList.add('active');
+    }
+
+    function toggleSidebar() {
+        const sb = document.getElementById('sidebar');
+        const icon = document.getElementById('toggle-icon');
+        sb.classList.toggle('collapsed');
+        icon.classList.toggle('bi-chevron-left');
+        icon.classList.toggle('bi-chevron-right');
+    }
+
+    function render() {
+        const box = document.getElementById('quizBox');
+        box.innerHTML = '';
+        const start = currentBatchIndex * batchSize;
+        const end = Math.min(start + batchSize, shuffledDb.length);
+        
+        shuffledDb.slice(start, end).forEach((item, i) => {
+            const idx = start + i;
+            box.innerHTML += `
+                <div class="q-card">
+                    <span class="fw-bold text-dark">Câu ${idx + 1}:</span> ${item.q1} ${item.q2}
+                    <input type="text" id="in-${idx}" placeholder="Nhập câu trả lời (Hãy thử lược bỏ đại từ nếu có thể)...">
+                    <div id="fb-${idx}" class="feedback"></div>
+                </div>`;
+        });
+        document.getElementById('progressText').innerText = `Tiến độ: ${end}/${shuffledDb.length}`;
+        document.getElementById('nextBtn').disabled = true;
+    }
+
+    function normalize(s) { return s.toLowerCase().trim().replace(/[.!?]$/, "").replace(/\s+/g, ' '); }
+
+    // Chấm điểm thông minh mới (hỗ trợ cả đáp án rút gọn và đầy đủ)
+    function isCorrect(user, item) {
+        const u = normalize(user);
+        const m = normalize(item.ans);
+        
+        // 1. Khớp chính xác đáp án chuẩn (thường là đáp án đã lược bỏ)
+        if (u === m) return true;
+        
+        // 2. Khớp với các đáp án thay thế (đáp án chưa lược bỏ)
+        if (item.alt && item.alt.some(a => normalize(a) === u)) return true;
+
+        // 3. Fallback: Dành cho các câu Who/Which làm chủ ngữ không có trong danh sách alt
+        if (m.includes(",")) return false; // Mệnh đề không xác định không dùng 'that'
+        
+        const variants = [
+            m.replace(/\bwho\b/g, "that"),
+            m.replace(/\bwhich\b/g, "that"),
+            m.replace(/\bthat\b/g, "who"),
+            m.replace(/\bthat\b/g, "which")
+        ];
+        return variants.some(v => u === normalize(v));
+    }
+
+    function gradeBatch() {
+        const start = currentBatchIndex * batchSize;
+        const end = Math.min(start + batchSize, shuffledDb.length);
+        const totalW = database.reduce((s, q) => s + q.w, 0);
+
+        for (let i = start; i < end; i++) {
+            const input = document.getElementById(`in-${i}`);
+            const fb = document.getElementById(`fb-${i}`);
+            const item = shuffledDb[i];
+
+            if (isCorrect(input.value, item)) {
+                fb.innerText = "✓ Chính xác! (Đáp án tối ưu: " + item.ans + ")"; 
+                fb.style.color = "var(--success)";
+                earnedWeight += item.w;
+            } else {
+                fb.innerText = `✗ Đáp án mẫu: ${item.ans}`; 
+                fb.style.color = "var(--danger)";
+            }
+            fb.style.display = "block"; 
+            input.disabled = true;
+        }
+        
+        // Cập nhật phần trăm tiến độ
+        let maxPossibleScoreSoFar = shuffledDb.slice(0, end).reduce((s, q) => s + q.w, 0);
+        document.getElementById('percentDisplay').innerText = Math.round((earnedWeight / maxPossibleScoreSoFar) * 100) + "%";
+        document.getElementById('nextBtn').disabled = false;
+    }
+
+    function loadNextBatch() {
+        if ((currentBatchIndex + 1) * batchSize < shuffledDb.length) {
+            currentBatchIndex++; 
+            render();
+        } else { 
+            alert("Tuyệt vời! Bạn đã hoàn thành bài tập!"); 
+        }
+    }
+
+    // Khởi chạy khi load xong
+    initQuiz();
+</script>
+</body>
+</html>
